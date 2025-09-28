@@ -2421,17 +2421,18 @@ if ('serviceWorker' in navigator) {
 <!-- /[PATCH-UI-ONE-TIME-MEMBER] --> <!-- (giữ nguyên vì đây KHÔNG nằm trong <script>) -->
 
   <script>
-  // Đăng ký Service Worker sau khi trang tải xong
   window.addEventListener('load', () => {
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/public/sw.js')
+      navigator.serviceWorker.register('/sw.js')
         .catch(err => console.error('SW register failed:', err));
     }
   });
 </script>
 
+
 </body>
 </html>
+
 
 
 

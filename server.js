@@ -225,6 +225,11 @@ app.use(express.static(path.join(__dirname, 'public'), {
   }
 }));
 
+// Root -> trả file giao diện
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 // ===== Session Store (Redis nếu có, dev fallback MemoryStore) =====
 let sessionStore;
 
@@ -2350,6 +2355,7 @@ app.listen(PORT, HOST, () => {
   const printableHost = (HOST === '0.0.0.0' || HOST === '::') ? 'localhost' : HOST;
   console.log(`Server listening at http://${printableHost}:${PORT}`);
 });
+
 
 
 

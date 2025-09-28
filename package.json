@@ -8,12 +8,12 @@
     "start": "node server.js"
   },
   "engines": {
-    "node": ">=18"
+    "node": "20.x"
   },
   "dependencies": {
     "@google-cloud/secret-manager": "^6.1.0",
     "bcryptjs": "^2.4.3",
-    "better-sqlite3": "^9.6.0",
+    "better-sqlite3": "^11.7.0"
     "compression": "^1.8.1",
     "connect-redis": "^7.1.1",
     "cookie-parser": "^1.4.7",

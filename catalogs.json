@@ -1,0 +1,277 @@
+{
+  "loaiVanBan": [
+    {
+      "id": "Công văn",
+      "label": "Công văn"
+    },
+    {
+      "id": "Báo cáo",
+      "label": "Báo cáo"
+    },
+    {
+      "id": "Phối hợp",
+      "label": "Phối hợp"
+    }
+  ],
+  "mucDo": [
+    {
+      "id": "Thường",
+      "label": "Thường"
+    },
+    {
+      "id": "Khẩn",
+      "label": "Khẩn"
+    },
+    {
+      "id": "Nội bộ",
+      "label": "Nội bộ"
+    }
+  ],
+  "donVi": [
+    {
+      "id": "Tổ chức - Hành chính",
+      "label": "Tổ chức - Hành chính"
+    },
+    {
+      "id": "Kế toán - Tài chính",
+      "label": "Kế toán - Tài chính"
+    },
+    {
+      "id": "Quản lý Kỹ thuật",
+      "label": "Quản lý Kỹ thuật"
+    },
+    {
+      "id": "Kinh doanh",
+      "label": "Kinh doanh"
+    },
+    {
+      "id": "Kinh doanh tổng hợp",
+      "label": "Kinh doanh tổng hợp"
+    },
+    {
+      "id": "CNTT - TĐH",
+      "label": "CNTT - TĐH"
+    },
+    {
+      "id": "Kho XD Quy Nhơn",
+      "label": "Kho XD Quy Nhơn"
+    },
+    {
+      "id": "Kho Cảng dầu",
+      "label": "Kho Cảng dầu"
+    },
+    {
+      "id": "Đội Bảo vệ",
+      "label": "Đội Bảo vệ"
+    },
+    {
+      "id": "Petrolimex CH 01",
+      "label": "Petrolimex CH 01"
+    },
+    {
+      "id": "Petrolimex CH 02",
+      "label": "Petrolimex CH 02"
+    },
+    {
+      "id": "Quầy Mỹ Thọ",
+      "label": "Quầy Mỹ Thọ"
+    },
+    {
+      "id": "Petrolimex CH 04",
+      "label": "Petrolimex CH 04"
+    },
+    {
+      "id": "Petrolimex CH 05",
+      "label": "Petrolimex CH 05"
+    },
+    {
+      "id": "Petrolimex CH 38",
+      "label": "Petrolimex CH 38"
+    },
+    {
+      "id": "Petrolimex CH 07",
+      "label": "Petrolimex CH 07"
+    },
+    {
+      "id": "Petrolimex CH 08",
+      "label": "Petrolimex CH 08"
+    },
+    {
+      "id": "Petrolimex CH 09",
+      "label": "Petrolimex CH 09"
+    },
+    {
+      "id": "Petrolimex CH 10",
+      "label": "Petrolimex CH 10"
+    },
+    {
+      "id": "Petrolimex CH 11",
+      "label": "Petrolimex CH 11"
+    },
+    {
+      "id": "Petrolimex CH 12",
+      "label": "Petrolimex CH 12"
+    },
+    {
+      "id": "CH Gás Tam Quan",
+      "label": "CH Gás Tam Quan"
+    },
+    {
+      "id": "Petrolimex CH 14",
+      "label": "Petrolimex CH 14"
+    },
+    {
+      "id": "Petrolimex CH 15",
+      "label": "Petrolimex CH 15"
+    },
+    {
+      "id": "Petrolimex CH 16",
+      "label": "Petrolimex CH 16"
+    },
+    {
+      "id": "Petrolimex CH 17",
+      "label": "Petrolimex CH 17"
+    },
+    {
+      "id": "Petrolimex CH 18",
+      "label": "Petrolimex CH 18"
+    },
+    {
+      "id": "Petrolimex CH 19",
+      "label": "Petrolimex CH 19"
+    },
+    {
+      "id": "Petrolimex CH 20",
+      "label": "Petrolimex CH 20"
+    },
+    {
+      "id": "Petrolimex CH 21",
+      "label": "Petrolimex CH 21"
+    },
+    {
+      "id": "Petrolimex CH 22",
+      "label": "Petrolimex CH 22"
+    },
+    {
+      "id": "Petrolimex CH 23",
+      "label": "Petrolimex CH 23"
+    },
+    {
+      "id": "Petrolimex CH 24",
+      "label": "Petrolimex CH 24"
+    },
+    {
+      "id": "Petrolimex CH 25",
+      "label": "Petrolimex CH 25"
+    },
+    {
+      "id": "Petrolimex CH 26",
+      "label": "Petrolimex CH 26"
+    },
+    {
+      "id": "CHKD Gas",
+      "label": "CHKD Gas"
+    },
+    {
+      "id": "Petrolimex CH 28",
+      "label": "Petrolimex CH 28"
+    },
+    {
+      "id": "Petrolimex CH 29",
+      "label": "Petrolimex CH 29"
+    },
+    {
+      "id": "Petrolimex CH 30",
+      "label": "Petrolimex CH 30"
+    },
+    {
+      "id": "Petrolimex CH 31",
+      "label": "Petrolimex CH 31"
+    },
+    {
+      "id": "Petrolimex CH 32",
+      "label": "Petrolimex CH 32"
+    },
+    {
+      "id": "Petrolimex CH 33",
+      "label": "Petrolimex CH 33"
+    },
+    {
+      "id": "Petrolimex CH 34",
+      "label": "Petrolimex CH 34"
+    },
+    {
+      "id": "Petrolimex CH 35",
+      "label": "Petrolimex CH 35"
+    },
+    {
+      "id": "Petrolimex CH 36",
+      "label": "Petrolimex CH 36"
+    },
+    {
+      "id": "Petrolimex CH 37",
+      "label": "Petrolimex CH 37"
+    },
+    {
+      "id": "CHKD PLX",
+      "label": "CHKD PLX"
+    },
+    {
+      "id": "Petrolimex CH 39",
+      "label": "Petrolimex CH 39"
+    },
+    {
+      "id": "Petrolimex CH 40",
+      "label": "Petrolimex CH 40"
+    },
+    {
+      "id": "Petrolimex CH 41",
+      "label": "Petrolimex CH 41"
+    },
+    {
+      "id": "Petrolimex CH 42",
+      "label": "Petrolimex CH 42"
+    },
+    {
+      "id": "Petrolimex CH 43",
+      "label": "Petrolimex CH 43"
+    },
+    {
+      "id": "Petrolimex CH 44",
+      "label": "Petrolimex CH 44"
+    },
+    {
+      "id": "Petrolimex CH 45",
+      "label": "Petrolimex CH 45"
+    },
+    {
+      "id": "Petrolimex CH 46",
+      "label": "Petrolimex CH 46"
+    },
+    {
+      "id": "Petrolimex CH 47",
+      "label": "Petrolimex CH 47"
+    },
+    {
+      "id": "Petrolimex CH 48",
+      "label": "Petrolimex CH 48"
+    },
+    {
+      "id": "Petrolimex CH 49",
+      "label": "Petrolimex CH 49"
+    },
+    {
+      "id": "Petrolimex CH 50",
+      "label": "Petrolimex CH 50"
+    },
+    {
+      "id": "Petrolimex CH 51",
+      "label": "Petrolimex CH 51"
+    }
+  ],
+  "nhan": [
+    "Đảng",
+    "Chính quyền",
+    "Nội bộ"
+  ]
+}

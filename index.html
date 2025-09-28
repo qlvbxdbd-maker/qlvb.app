@@ -101,6 +101,12 @@
   .form-row .remember{display:flex;align-items:center;gap:6px;white-space:nowrap;padding-bottom:4px}
   #lgBtn{min-width:120px}
 </style>
+<!-- PWA manifest + icons -->
+<link rel="manifest" href="/public/manifest.webmanifest">
+<link rel="icon" href="/public/icons/icon-192.png" sizes="192x192">
+<link rel="icon" href="/public/icons/icon-512.png" sizes="512x512">
+<meta name="theme-color" content="#0f172a">
+  
 </head>
 
 <body>
@@ -2414,6 +2420,17 @@ if ('serviceWorker' in navigator) {
 </script>
 <!-- /[PATCH-UI-ONE-TIME-MEMBER] --> <!-- (giữ nguyên vì đây KHÔNG nằm trong <script>) -->
 
+  <script>
+  // Đăng ký Service Worker sau khi trang tải xong
+  window.addEventListener('load', () => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/public/sw.js')
+        .catch(err => console.error('SW register failed:', err));
+    }
+  });
+</script>
+
 </body>
 </html>
+
 

@@ -1,0 +1,2419 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8"/>
+  <title>Công ty TNHH MTV Petrolimex Gia Lai – Văn bản • Đảng viên • Báo cáo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+  <!-- moved vào head -->
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#111111">
+  <link rel="icon" href="/icons/icon-192.png">
+
+
+<!-- =========================
+  [STYLE] KHỐI GIAO DIỆN CHUNG
+  ========================== -->
+<style>
+  /* === TOPBAR FIX – cần phải nút, không xuống dòng === */
+  .topbar{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:6px 0;
+  }
+  .topbar-brand{
+    font-weight:700;
+    font-size:18px;
+    min-width:0;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .topbar-right{
+    margin-left:auto;
+    display:flex;
+    gap:10px;
+    align-items:center;
+    white-space:nowrap;
+  }
+  .topbar .btn{
+    padding:6px 10px;
+    border:1px solid #e5e7eb;
+    border-radius:8px;
+    background:#fff;
+    cursor:pointer;
+  }
+
+  :root{
+    color-scheme: light;
+    --bg:#f6f7ff; --panel:#fff; --line:#e7e7ef; --muted:#6b7280;
+    --primary:#6d28d9; --primary-weak:#ede9fe; --primary-strong:#4c1d95;
+    --good:#0a7a0a; --bad:#b00020;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);font:14px system-ui,Segoe UI,Roboto,Helvetica,Arial;color:#111827}
+
+  /* Header cũ (nếu còn dùng) */
+  header{display:flex;gap:10px;justify-content:space-between;align-items:center;padding:12px 16px;background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10}
+  .brand{font-weight:700}
+  .header-right{display:flex;gap:8px;align-items:center}
+
+  .btn{padding:.45rem .7rem;border:1px solid var(--line);border-radius:10px;background:#fff;cursor:pointer;text-decoration:none;color:#111}
+  .btn.primary{background:var(--primary);color:#fff;border-color:transparent}
+  .btn.link{border:none;background:none;color:var(--primary-strong);text-decoration:underline;cursor:pointer}
+
+  .wrap{display:grid;grid-template-columns:270px 1fr;gap:16px;padding:16px}
+  @media (max-width:980px){.wrap{grid-template-columns:1fr}}
+  .side{background:#f1eeff;border:1px solid var(--line);border-radius:14px;padding:10px}
+  details{margin:8px 0;background:#fff;border:1px solid var(--line);border-radius:12px}
+  summary{padding:10px 12px;font-weight:700;cursor:pointer;list-style:none;border-radius:12px}
+  summary::marker,summary::-webkit-details-marker{display:none}
+  .tree a{display:block;padding:9px 12px 9px 36px;color:#111;text-decoration:none;border-top:1px solid var(--line)}
+  .tree a:first-of-type{border-top:none}
+  .tree a:hover{background:#faf8ff}
+  .active{outline:2px solid var(--primary);outline-offset:-2px;border-radius:10px}
+  fieldset{border:1px solid var(--line);border-radius:12px;background:var(--panel);margin:0 0 14px}
+  legend{padding:0 8px;font-weight:700}
+  label{display:flex;flex-direction:column;gap:6px}
+  input,select,textarea{padding:.55rem .65rem;border:1px solid var(--line);border-radius:10px;background:#fff}
+  textarea{min-height:84px;resize:vertical}
+  .grid{display:grid;gap:12px}
+  .cols-2{grid-template-columns:repeat(2,minmax(200px,1fr))}
+  .cols-3{grid-template-columns:repeat(3,minmax(200px,1fr))}
+  @media (max-width:980px){.cols-2,.cols-3{grid-template-columns:1fr}}
+  .result{border:1px solid var(--line);border-radius:12px;background:#fafafa;padding:10px;min-height:56px}
+  table{width:100%;border-collapse:collapse;background:#fff}
+  th,td{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  .pill{display:inline-block;background:var(--primary-weak);color:var(--primary-strong);padding:2px 8px;border-radius:999px;font-size:12px}
+  .ok{color:var(--good)} .err{color:var(--bad)} .muted{color:var(--muted)}
+  .hide{display:none!important}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px}
+  .right{display:flex;gap:8px;justify-content:flex-end}
+
+  /* =========================
+    [STYLE] OVERLAY ĐĂNG NHẬP
+    ========================== */
+  #loginOverlay{position:fixed;inset:0;background:#fff;display:flex;z-index:9999;align-items:center;justify-content:center}
+  #loginBox{width:420px;border:1px solid var(--line);border-radius:12px;background:#fff;padding:18px}
+  .form-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end;margin-bottom:12px}
+  .form-row .field span{display:block;margin:0 0 4px}
+  .form-row .remember{display:flex;align-items:center;gap:6px;white-space:nowrap;padding-bottom:4px}
+  #lgBtn{min-width:120px}
+</style>
+</head>
+
+<body>
+
+<!-- =========================
+  [HEADER]
+  ========================== -->
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="topbar-brand">Công ty TNHH MTV Petrolimex Gia Lai</div>
+  <div class="topbar-right">
+    <span id="who" class="muted">Chưa đăng nhập</span>
+    <button id="btnLogin" class="btn">Đăng nhập</button>
+    <button id="btnLogout" class="btn hide">Đăng xuất</button>
+    <a id="btnAuth" class="btn" href="/auth/admin/drive">Cấp quyền Drive</a>
+  </div>
+</header>
+
+<div class="wrap">
+  <!-- =========================
+    [SIDEBAR]
+    ========================== -->
+  <nav class="side">
+    <!-- Nhóm Trang chủ: chỉ 1 dòng, không có mục con -->
+<details open>
+  <summary id="sumHome">Trang chủ</summary>
+</details>
+
+    <details open>
+      <summary>Văn bản</summary>
+      <div class="tree">
+        <a href="#vb-manager" class="navlink">Tạo & Chia sẻ</a>
+        <a href="#vb-den" class="navlink">Văn bản đến</a>
+        <a href="#vb-di" class="navlink">Văn bản đi</a>
+        <a href="#vb-search" class="navlink">Tìm kiếm văn bản</a>
+      </div>
+    </details>
+
+    <details>
+      <summary>Đảng viên</summary>
+      <div class="tree">
+        <a href="#dv-taomoi" class="navlink">Tạo mới Đảng viên</a>
+        <a href="#dv-chitiet" class="navlink">Chi tiết Đảng viên</a>
+        <a href="#dv-luutru" class="navlink">Lưu trữ văn bản cá nhân</a>
+       </div>
+    </details>
+
+    <details>
+      <summary>Báo cáo</summary>
+      <div class="tree">
+        <a href="#bc-chitiet" class="navlink">Báo cáo chi tiết Đảng viên</a>
+        <a href="#bc-tonghop" class="navlink">Báo cáo tổng hợp Đảng viên</a>
+        <a href="#bc-trienkhai" class="navlink">Báo cáo văn bản đã triển khai</a>
+      </div>
+    </details>
+
+    <details id="nav-admin">
+      <summary>Quản trị</summary>
+      <div class="tree">
+        <a href="#qt-phanquyen" class="navlink">Quản lý người dùng</a>
+        <a href="#qt-matkhautv" class="navlink">Đổi mật khẩu</a>
+        <a href="#qt-catalogs" class="navlink">Quản lý danh mục</a>
+      </div>
+    </details>
+  </nav>
+
+  <!-- =========================
+    [MAIN]
+    ========================== -->
+  <main class="grid">
+
+    <!-- HOME -->
+    <section id="view-home">
+      <div class="card">
+        <h3 style="margin:0 0 8px">Văn bản chỉ đạo mới nhất</h3>
+        <div id="latestHero" class="muted">Đang tải...</div>
+      </div>
+      <div class="card">
+        <h3 style="margin:0 0 8px">Văn bản gần đây</h3>
+        <div id="recentList" class="result">Đang tải...</div>
+      </div>
+    </section>
+
+    <!-- VB ĐẾN -->
+    <section id="view-vb-den" class="hide">
+      <fieldset>
+        <legend>Văn bản đến</legend>
+        <form id="form-den" class="grid cols-3">
+          <label>Từ ngày <input id="denFrom" type="date"></label>
+          <label>Đến ngày <input id="denTo" type="date"></label>
+          <label>Người gửi <input id="denSender" placeholder="gõ tên..."></label>
+          <label>Mức độ <select id="denMucDo"><option value="">(Tất cả)</option></select></label>
+          <label>Đơn vị <select id="denDonVi"><option value="">(Tất cả)</option></select></label>
+          <label>Từ khóa <input id="denText" placeholder="gõ nhiều từ, cách nhau bởi dấu cách"></label>
+          <div><button class="btn primary" type="submit">Tìm</button></div>
+        </form>
+      </fieldset>
+      <div id="denOut" class="result">Chưa có dữ liệu.</div>
+    </section>
+
+    <!-- VB ĐI -->
+    <section id="view-vb-di" class="hide">
+      <fieldset>
+        <legend>Văn bản đi</legend>
+        <form id="form-di" class="grid cols-3">
+          <label>Từ ngày <input id="diFrom" type="date"></label>
+          <label>Đến ngày <input id="diTo" type="date"></label>
+          <label>Người nhận <input id="diReceiver" placeholder="gõ tên..."></label>
+          <label>Mức độ <select id="diMucDo"><option value="">(Tất cả)</option></select></label>
+          <label>Đơn vị <select id="diDonVi"><option value="">(Tất cả)</option></select></label>
+          <label>Từ khóa <input id="diText" placeholder="gõ nhiều từ, cách nhau bởi dấu cách"></label>
+          <div><button class="btn primary" type="submit">Tìm</button></div>
+        </form>
+      </fieldset>
+      <div id="diOut" class="result">Chưa có dữ liệu.</div>
+    </section>
+
+    <!-- VB SEARCH -->
+    <section id="view-vb-search" class="hide">
+      <fieldset>
+        <legend>Tìm kiếm văn bản</legend>
+        <form id="searchForm" class="grid cols-3">
+          <label>Từ ngày  <input id="qFrom" type="date"/></label>
+          <label>Đến ngày <input id="qTo"   type="date"/></label>
+          <label>Loại văn bản <select id="qLoai"><option value="">(Tất cả)</option></select></label>
+          <label>Mức độ <select id="qMucDo"><option value="">(Tất cả)</option></select></label>
+          <label>Đơn vị <select id="qDonVi"><option value="">(Tất cả)</option></select></label>
+          <label>Từ khóa tên tệp <input id="qText" placeholder="gõ nhiều từ, cách nhau bởi dấu cách"/></label>
+          <div><button class="btn primary" type="submit">Tìm</button></div>
+        </form>
+        <div id="searchOut" class="result">Chưa có dữ liệu.</div>
+      </fieldset>
+    </section>
+
+    <!-- VB MANAGER -->
+    <section id="view-vb-manager" class="hide">
+      <fieldset>
+        <legend>Upload / Sửa metadata</legend>
+        <form id="uploadForm" class="grid">
+          <div class="grid cols-2">
+            <label>Ngày văn bản <input id="uDate" type="date" required></label>
+            <label>Tệp văn bản <input id="uFile" type="file" required></label>
+
+            <label>Số hiệu <input name="soHieu" placeholder="VD: 123/QĐ-ĐU"></label>
+            <label>Tên tệp hiển thị <input id="uDisplayName" name="tenTep" placeholder="Mặc định = tên tệp đính kèm (có đuôi)"></label>
+
+            <label>Loại văn bản <select name="loai" id="selLoai"></select></label>
+            <label>Mức độ <select name="mucDo" id="selMucDo"></select></label>
+
+            <label>Đơn vị/Bộ phận <select name="donVi" id="selDonVi"></select></label>
+            <label>Hạn xử lý <input name="hanXuLy" type="date"></label>
+
+            <label>Người gửi <input name="nguoiGui" placeholder="Tên đơn vị/cá nhân gửi"></label>
+            <label>Người phụ trách <input name="nguoiPhuTrach" placeholder="VD: Nguyễn Văn A"></label>
+
+            <label>Luồng văn bản
+  <select name="flow" id="uFlow">
+    <option value="">(Mặc định: Văn bản đi)</option>
+    <option value="den">Văn bản đến</option>
+    <option value="di">Văn bản đi</option>
+  </select>
+</label>
+
+            <label>Nhãn (giữ Ctrl/Cmd để chọn nhiều)
+              <select name="nhan" id="selNhan" multiple size="4"></select>
+            </label>
+          </div>
+
+          <label>Trích yếu
+            <textarea name="trichYeu" placeholder="Tóm tắt nội dung văn bản..."></textarea>
+          </label>
+
+          <div><button class="btn primary" type="submit">Lưu</button> <span id="uMsg" class="muted"></span></div>
+        </form>
+      </fieldset>
+
+      <fieldset>
+        <legend>Chia sẻ văn bản</legend>
+        <form id="shareForm" class="grid cols-3">
+          <label>File ID <input id="sFileId" required></label>
+
+          <label>Chế độ chia sẻ
+            <select id="sMode"></select>
+          </label>
+
+          <label id="bxEmail">Email người nhận
+            <input id="sEmail" type="email" placeholder="tennguoi@domain.com">
+          </label>
+
+          <label id="bxChiBo">Tên Chi bộ
+            <input id="sChiBo" list="lstShareChiBo" placeholder="gõ để chọn...">
+            <datalist id="lstShareChiBo"></datalist>
+          </label>
+
+          <label id="bxDonVi">Đơn vị/Bộ phận
+            <input id="sDonVi" list="lstShareDonVi" placeholder="gõ để chọn...">
+            <datalist id="lstShareDonVi"></datalist>
+          </label>
+
+          <label>Quyền
+            <select id="sRole">
+              <option value="reader">Chỉ đọc</option>
+              <option value="writer">Chỉnh sửa</option>
+            </select>
+          </label>
+
+          <label>Gửi email thông báo <input id="sNotify" type="checkbox" checked></label>
+          <label class="grid cols-1">Nội dung email (tùy chọn)<input id="sMessage" placeholder="Thông điệp gửi kèm..."></label>
+          <div><button class="btn primary" type="submit">Chia sẻ</button> <span id="sMsg" class="muted"></span></div>
+        </form>
+      </fieldset>
+    </section>
+
+    <!-- ĐẢNG VIÊN: TẠO MỚI + IMPORT -->
+    <section id="view-dv-taomoi" class="hide">
+      <fieldset>
+        <legend>Tạo mới Đảng viên</legend>
+        <div class="right" style="margin-bottom:10px">
+          <button class="btn" id="btnOpenImp">Tạo mới từ Excel</button>
+          <a class="btn" href="/members/template.xlsx">Tải mẫu Template Excel</a>
+        </div>
+        <form id="memCreate" class="grid cols-3">
+          <label>Họ và tên <input id="mHoTen" required></label>
+          <label>Tên gọi khác <input id="mTenKhac"></label>
+          <label>Ngày sinh <input id="mNgaySinh" type="date"></label>
+          <label>Giới tính
+            <input list="lstGioiTinh" id="mGioiTinh" placeholder="gõ để lọc...">
+            <datalist id="lstGioiTinh">
+              <option>Nam</option><option>Nữ</option><option>Khác</option>
+            </datalist>
+          </label>
+          <label>Điện thoại <input id="mDT"></label>
+          <label>Dân tộc <input id="mDanToc"></label>
+          <label>Tôn giáo <input id="mTonGiao"></label>
+          <label>Tỉnh/TP khai sinh <input id="mKSTinh"></label>
+          <label>Quận/Huyện khai sinh <input id="mKSHuyen"></label>
+          <label>Xã/Phường khai sinh <input id="mKSXa"></label>
+          <label>Ngày vào Đảng <input id="mVaoDang" type="date"></label>
+          <label>Ngày chính thức <input id="mChinhThuc" type="date"></label>
+          <label>Số thẻ Đảng <input id="mSoThe"></label>
+          <label>Số CCCD <input id="mCCCD"></label>
+          <label>Ngày cấp CCCD <input id="mNgayCap" type="date"></label>
+
+          <label>Chi bộ
+            <input list="lstChiBo" id="mChiBo" placeholder="gõ để tìm...">
+            <datalist id="lstChiBo"></datalist>
+          </label>
+          <label>Đảng bộ/cấp ủy
+            <input list="lstCapUy" id="mCapUy" placeholder="gõ để tìm...">
+            <datalist id="lstCapUy">
+              <option>Đảng ủy</option><option>Chi bộ</option><option>Chung</option>
+            </datalist>
+          </label>
+          <label>Đơn vị/Bộ phận
+            <input list="lstDonVi" id="mDonVi" placeholder="gõ để tìm...">
+            <datalist id="lstDonVi"></datalist>
+          </label>
+
+          <label>Gmail <input id="mEmail" type="email"></label>
+          <label>Ngày BĐ sinh hoạt <input id="mBD" type="date"></label>
+          <label>Ngày KT sinh hoạt <input id="mKT" type="date"></label>
+          <label>Trạng thái
+            <input list="lstTrangThai" id="mTrangThai" placeholder="Đang sinh hoạt/Nghỉ sinh hoạt/Chuyển Đảng">
+            <datalist id="lstTrangThai">
+              <option>Đang sinh hoạt</option><option>Nghỉ sinh hoạt</option><option>Chuyển Đảng</option>
+            </datalist>
+          </label>
+          <label class="grid cols-1">Ghi chú <input id="mGhiChu"></label>
+          <div><button class="btn primary" type="submit">Lưu</button> <span id="memMsg" class="muted"></span></div>
+        </form>
+      </fieldset>
+
+      <fieldset id="impBox" class="hide">
+        <legend>Nhập từ Excel</legend>
+        <form id="impForm" class="grid cols-3">
+          <label>Chọn tệp .xlsx <input id="impFile" type="file" accept=".xlsx" required></label>
+          <div style="align-self:end"><button class="btn primary" type="submit">Tải lên & Kiểm tra</button></div>
+          <div style="align-self:end"><a class="btn" href="/members/template.xlsx">Tải mẫu Excel</a></div>
+        </form>
+        <div id="impPreview" class="result"></div>
+      </fieldset>
+    </section>
+
+    <!-- ĐẢNG VIÊN: DANH SÁCH + SỬA -->
+    <section id="view-dv-chitiet" class="hide">
+      <fieldset>
+        <legend>Danh sách Đảng viên</legend>
+        <form id="memSearch" class="grid cols-3">
+          <label>Từ khóa <input id="memText" placeholder="Tên / Số thẻ / CCCD / Email"></label>
+          <label>Chi bộ <input id="memChiBo" placeholder="VD: Chi bộ A"></label>
+          <div><button class="btn primary" type="submit">Tìm</button></div>
+        </form>
+        <div id="memOut" class="result">Chưa có dữ liệu.</div>
+      </fieldset>
+
+      <fieldset id="editBox" class="hide">
+        <legend>Sửa hồ sơ Đảng viên</legend>
+        <form id="editForm" class="grid cols-3">
+          <input type="hidden" id="eId">
+
+          <label>Họ và tên <input id="eHoTen" required></label>
+          <label>Tên gọi khác <input id="eTenKhac"></label>
+          <label>Ngày sinh <input id="eNgaySinh" type="date"></label>
+
+          <label>Giới tính
+            <input list="lstGioiTinh" id="eGioiTinh" placeholder="gõ để lọc...">
+          </label>
+
+          <label>Điện thoại <input id="eDT"></label>
+          <label>Dân tộc <input id="eDanToc"></label>
+          <label>Tôn giáo <input id="eTonGiao"></label>
+
+          <label>Tỉnh/TP khai sinh <input id="eKSTinh"></label>
+          <label>Quận/Huyện khai sinh <input id="eKSHuyen"></label>
+          <label>Xã/Phường khai sinh <input id="eKSXa"></label>
+
+          <label>Ngày vào Đảng <input id="eVaoDang" type="date"></label>
+          <label>Ngày chính thức <input id="eChinhThuc" type="date"></label>
+          <label>Số thẻ Đảng <input id="eSoThe"></label>
+
+          <label>Số CCCD <input id="eCCCD"></label>
+          <label>Ngày cấp CCCD <input id="eNgayCap" type="date"></label>
+
+          <label>Chi bộ
+            <input list="lstChiBo" id="eChiBo" placeholder="gõ để tìm...">
+          </label>
+
+          <label>Đảng bộ/cấp ủy
+            <input list="lstCapUy" id="eCapUy" placeholder="gõ để tìm...">
+          </label>
+
+          <label>Đơn vị/Bộ phận
+            <input list="lstDonVi" id="eDonVi" placeholder="gõ để tìm...">
+          </label>
+
+          <label>Gmail <input id="eEmail" type="email"></label>
+          <label>Ngày BĐ sinh hoạt <input id="eBD" type="date"></label>
+          <label>Ngày KT sinh hoạt <input id="eKT" type="date"></label>
+
+          <label>Trạng thái
+            <input list="lstTrangThai" id="eTrangThai" placeholder="Đang sinh hoạt/Nghỉ sinh hoạt/Chuyển Đảng">
+          </label>
+
+          <label class="grid cols-1">Ghi chú <input id="eGhiChu"></label>
+
+          <div style="grid-column:1/-1">
+            <button class="btn primary" type="submit">Lưu</button>
+            <button class="btn link" id="eCancel" type="button">Đóng</button>
+            <span id="eMsg" class="muted"></span>
+          </div>
+        </form>
+      </fieldset>
+    </section>
+
+    <!-- LƯU TRỮ CÁ NHÂN -->
+    <section id="view-dv-luutru" class="hide">
+      <fieldset>
+        <legend>Upload lưu trữ văn bản cá nhân</legend>
+        <form id="perUpload" class="grid cols-3">
+          <label>Ngày tài liệu <input id="perDate" type="date"></label>
+          <label>Tệp <input id="perFile" type="file" required></label>
+          <label>Nhãn <input id="perLabel" placeholder="ví dụ: hồ sơ, ảnh..."></label>
+          <label>Trích yếu <input id="perNote" placeholder="mô tả ngắn..."></label>
+          <div><button class="btn primary" type="submit">Tải lên</button> <span id="perMsg" class="muted"></span></div>
+        </form>
+      </fieldset>
+
+      <fieldset>
+        <legend>Tìm kiếm lưu trữ văn bản cá nhân</legend>
+        <form id="perSearch" class="grid cols-3">
+          <label>Từ ngày <input id="psFrom" type="date"></label>
+          <label>Đến ngày <input id="psTo" type="date"></label>
+          <label>Từ khóa <input id="psText" placeholder="tên file chứa..."></label>
+          <div><button class="btn primary" type="submit">Tìm</button></div>
+        </form>
+        <div id="perOut" class="result"></div>
+      </fieldset>
+    </section>
+
+    <!-- BÁO CÁO: CHI TIẾT -->
+    <section id="view-bc-chitiet" class="hide">
+      <fieldset>
+        <legend>Báo cáo chi tiết Đảng viên</legend>
+        <form id="rptMemDetail" class="grid cols-3">
+          <label>Từ ngày <input id="rmdFrom" type="date"></label>
+          <label>Đến ngày <input id="rmdTo" type="date"></label>
+          <label>Từ khóa (Tên/Số thẻ/CCCD/Email) <input id="rmdText"></label>
+          <label>Nhóm Chi bộ <input id="rmdChiBo" placeholder="Tất cả/Đảng ủy/Chi bộ..."></label>
+          <div class="right">
+            <label>In ngang? <input type="checkbox" id="rmdLandscape"></label>
+            <button class="btn primary" type="submit">Chạy</button>
+          </div>
+        </form>
+        <div id="rmdOut" class="result"></div>
+      </fieldset>
+    </section>
+
+    <!-- BÁO CÁO: TỔNG HỢP -->
+    <section id="view-bc-tonghop" class="hide">
+      <fieldset>
+        <legend>Báo cáo tổng hợp Đảng viên</legend>
+        <div class="grid cols-3" style="margin-bottom:8px">
+          <label>Từ ngày <input id="rmsFrom" type="date"></label>
+          <label>Đến ngày <input id="rmsTo" type="date"></label>
+          <div class="right">
+            <label>In ngang? <input type="checkbox" id="rmsLandscape"></label>
+            <button id="btnRptSum" class="btn primary" type="button">Lấy số liệu</button>
+          </div>
+        </div>
+        <div id="rmsOut" class="result"></div>
+      </fieldset>
+    </section>
+
+    <!-- BÁO CÁO: TRIỂN KHAI -->
+    <section id="view-bc-trienkhai" class="hide">
+      <fieldset>
+        <legend>Báo cáo văn bản đã triển khai</legend>
+        <form id="rptDocs" class="grid cols-3">
+          <label>Từ ngày <input id="rdFrom" type="date"></label>
+          <label>Đến ngày <input id="rdTo" type="date"></label>
+          <label>Cấp/Đơn vị
+            <select id="rdLevel">
+              <option value="">(Tất cả)</option>
+              <option value="danguy">Đảng ủy</option>
+              <option value="chibo">Chi bộ</option>
+              <option value="chung">Chung</option>
+            </select>
+          </label>
+          <div class="right">
+            <label>In ngang? <input type="checkbox" id="rdLandscape"></label>
+            <button class="btn primary" type="submit">Xem</button>
+          </div>
+        </form>
+        <div id="rdOut" class="result"></div>
+      </fieldset>
+    </section>
+
+    <!-- QUẢN TRỊ: NGƯỜI DÙNG -->
+    <section id="view-qt-phanquyen" class="hide">
+  <fieldset>
+    <legend>Quản lý người dùng</legend>
+
+    <div class="right" style="margin-bottom:10px">
+      <button class="btn" id="btnUsrOpenImp">Tạo User từ Excel</button>
+      <a class="btn" href="/users/template.xlsx">Tải Template Excel</a>
+    </div>
+
+    <form id="usrCreate" class="grid cols-3">
+      <input type="hidden" id="uMode" value="create">
+      <label>Email <input id="uEmail" type="email" required></label>
+      <label>Họ tên <input id="uName"></label>
+      <label>Đơn vị/Bộ phận
+        <input id="uParty" list="lstDonVi" placeholder="gõ để tìm...">
+      </label>
+      <label>Vai trò
+        <select id="uRole">
+          <option value="user">User</option>
+          <option value="manager_unit">Manager (Đơn vị)</option>
+          <option value="manager_chibo">Manager (Chi bộ)</option>
+          <option value="manager_all">Manager (Toàn hệ thống)</option>
+          <option value="admin">Admin</option>
+        </select>
+      </label>
+
+      <label id="uUnitsBox" style="display:none">
+        Đơn vị quản lý (giữ Ctrl/Cmd để chọn nhiều)
+        <select id="uUnits" multiple size="6"></select>
+      </label>
+
+      <label id="uChiBoBox" style="display:none">
+        Chi bộ quản lý (giữ Ctrl/Cmd để chọn nhiều)
+        <select id="uChiBo" multiple size="6"></select>
+      </label>
+
+      <label id="uUserUnitBox" style="display:none">
+        Đơn vị của User
+        <select id="uUserUnit"></select>
+      </label>
+      <label id="uUserChiBoBox" style="display:none">
+        Chi bộ của User
+        <input id="uUserChiBo" list="lstAdminChiBo" placeholder="gõ để tìm...">
+        <datalist id="lstAdminChiBo"></datalist>
+      </label>
+
+      <label>Mật khẩu <input id="uPass" type="password" placeholder="để trống = sinh ngẫu nhiên"></label>
+
+      <div style="grid-column:1/-1">
+        <button class="btn primary" type="submit" id="uSubmitBtn">Thêm</button>
+        <button class="btn link hide" type="button" id="uCancelEdit">Huỷ sửa</button>
+        <span id="uMsg" class="muted"></span>
+      </div>
+    </form>
+
+    <fieldset id="usrImpBox" class="hide">
+      <legend>Nhập User từ Excel</legend>
+      <form id="usrImpForm" class="grid cols-3">
+        <label>Chọn tệp .xlsx <input id="usrImpFile" type="file" accept=".xlsx" required></label>
+        <div style="align-self:end"><button class="btn primary" type="submit">Tải lên & Kiểm tra</button></div>
+        <div style="align-self:end"><a class="btn" href="/users/template.xlsx">Tải Template</a></div>
+      </form>
+      <div id="usrImpPreview" class="result"></div>
+    </fieldset>
+
+    <div class="grid cols-3" style="margin:8px 0">
+      <label class="grid cols-1">Tìm User (Họ tên / Email)
+        <input id="usrSearch" placeholder="gõ để lọc nhanh...">
+      </label>
+    </div>
+
+    <div id="usrList" class="result">Chưa có dữ liệu.</div>
+  </fieldset>
+</section>
+
+    <!-- QUẢN TRỊ: ĐỔI MẬT KHẨU -->
+    <section id="view-qt-matkhautv" class="hide">
+      <fieldset>
+        <legend>Đổi mật khẩu của tôi</legend>
+        <form id="mePwd" class="grid cols-3">
+          <label>Mật khẩu cũ <input id="meOld" type="password" required></label>
+          <label>Mật khẩu mới <input id="meNew" type="password" required></label>
+          <div><button class="btn primary" type="submit">Đổi mật khẩu</button> <span id="meMsg" class="muted"></span></div>
+        </form>
+        <div class="muted" style="margin-top:6px">Nếu chức năng này chưa khả dụng, vui lòng liên hệ Admin để đặt lại mật khẩu.</div>
+      </fieldset>
+    </section>
+
+    <!-- QUẢN TRỊ: DANH MỤC -->
+    <section id="view-qt-catalogs" class="hide">
+      <fieldset>
+        <legend>Quản lý danh mục (dán từ Excel – mỗi dòng một mục)</legend>
+        <div class="grid cols-3">
+          <label>Loại văn bản (id | label)
+            <textarea id="catLoai" placeholder="congvan | Công văn&#10;baocao | Báo cáo"></textarea>
+          </label>
+          <label>Mức độ (id | label)
+            <textarea id="catMucDo" placeholder="thuong | Thường&#10;khan | Khẩn&#10;mat | Mật"></textarea>
+          </label>
+          <label>Đơn vị/Bộ phận (id | label)
+            <textarea id="catDonVi" placeholder="danguy | Đảng ủy&#10;chibo | Chi bộ&#10;chung | Chung"></textarea>
+          </label>
+          <label style="grid-column:1/-1">Nhãn (mỗi dòng một nhãn)
+            <textarea id="catNhan" placeholder="Đảng vụ&#10;Khẩn&#10;Nội bộ"></textarea>
+          </label>
+        </div>
+        <div class="right">
+          <button id="btnCatLoad" class="btn">Tải danh mục</button>
+          <button id="btnCatSave" class="btn primary">Lưu danh mục</button>
+          <span id="catMsg" class="muted"></span>
+        </div>
+      </fieldset>
+    </section>
+
+  </main>
+</div>
+
+<!-- =========================
+  [LOGIN OVERLAY]
+  ========================== -->
+<div id="loginOverlay">
+  <div id="loginBox">
+    <form id="loginForm" autocomplete="on">
+      <h2 style="margin:0 0 12px;text-align:center;letter-spacing:.5px">QUẢN LÝ VĂN BẢN</h2>
+
+      <div class="form-row">
+        <label class="field">
+          <span>Username (Email)</span>
+          <input id="lgEmail" type="email" autocomplete="username" required style="width:100%">
+        </label>
+        <label class="remember" for="lgRememberUser">
+          <input id="lgRememberUser" type="checkbox">
+          <span>Ghi nhớ username</span>
+        </label>
+      </div>
+
+      <div class="form-row">
+        <label class="field">
+          <span>Password</span>
+          <input id="lgPass" type="password" autocomplete="current-password" required style="width:100%">
+        </label>
+        <label class="remember" for="lgRememberPass">
+          <input id="lgRememberPass" type="checkbox">
+          <span>Ghi nhớ mật khẩu</span>
+        </label>
+      </div>
+
+      <div class="right" style="margin-top:6px">
+        <button id="lgBtn" class="btn primary" type="submit">Đăng nhập</button>
+      </div>
+
+      <div id="lgMsg" class="muted" style="margin-top:8px"></div>
+    </form>
+  </div>
+</div>
+
+<!-- =========================
+  [SCRIPT] TOÀN BỘ LOGIC ỨNG DỤNG
+  ========================== -->
+<script>
+// === API helper (đặt ngay đầu khối script) ===
+// Nếu frontend và backend cùng origin → để trống.
+// Nếu backend khác domain/port → đặt ví dụ: "https://api.your-domain.com"
+const API = "";
+
+async function apiFetch(path, opts = {}) {
+  const method = (opts.method || 'GET').toUpperCase();
+  let url = API + path;
+
+  // Chống cache cho GET
+  if (method === 'GET') {
+    url += (url.includes('?') ? '&' : '?') + '_ts=' + Date.now();
+  }
+
+  // KHÔNG set 'Content-Type' nếu body là FormData (để trình duyệt tự đặt boundary)
+  const hdr = { ...(opts.headers || {}) };
+  const isFormData = (typeof FormData !== 'undefined') && (opts.body instanceof FormData);
+  if (!isFormData && !('Content-Type' in hdr) && method !== 'GET') {
+    hdr['Content-Type'] = 'application/json';
+  }
+
+  const options = {
+    credentials: 'include',           // luôn gửi/nhận cookie phiên
+    cache: method === 'GET' ? 'no-store' : 'no-cache',
+    ...opts,
+    headers: hdr
+  };
+
+  return fetch(url, options);
+}
+
+
+  // ====== [REGION: Helpers & Globals] ======
+  const $ = id => document.getElementById(id);
+  let AUTH_USER = null;
+  window.__LG_SUBMIT_ONCE = false;
+
+function esc(s){
+  return String(s ?? '')
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+
+  function resetSelect(id){
+    const el = $(id); if (!el) return;
+    el.disabled = false;
+    try{ [...el.options].forEach(o => o.hidden = false); }catch{}
+  }
+  function resetInputsForRoleSwitch(){
+    ['selDonVi','denDonVi','diDonVi','qDonVi'].forEach(resetSelect);
+    if ($('memChiBo')){ $('memChiBo').disabled = false; }
+    if ($('memText')) { $('memText').disabled  = false; }
+  }
+
+  function docPreviewLink(obj){
+  const id = obj?.id || obj?.fileId;
+  if (!id) return '#';
+  // Mở trực tiếp Google Docs/Sheets/Drive Viewer (backend sẽ tự share im lặng nếu hợp lệ)
+  return `/documents/${encodeURIComponent(id)}/open`;
+}
+
+
+  function fmtDate(v){
+    if (!v) return '';
+    try{
+      let d;
+      if (v instanceof Date) d = v;
+      else if (typeof v === 'number') d = new Date(v);
+      else if (/^\d{4}-\d{2}-\d{2}$/.test(v)) d = new Date(v+'T00:00:00');
+      else d = new Date(v);
+      if (isNaN(d)) return String(v);
+      const dd = String(d.getDate()).padStart(2,'0');
+      const mm = String(d.getMonth()+1).padStart(2,'0');
+      const yy = String(d.getFullYear());
+      return `${dd}/${mm}/${yy}`;
+    }catch{ return String(v); }
+  }
+
+  function printHTML(title, html, landscape=false){
+    const w = window.open("", "_blank");
+    const css = `
+      <style>
+        @page { size: A4 ${landscape?'landscape':'portrait'}; margin: 2cm 2cm 2cm 3cm; }
+        body{font-family: "Times New Roman", serif; font-size: 12pt; color:#000}
+        table{width:100%;border-collapse:collapse}
+        th,td{border:1px solid #000;padding:6px;vertical-align:top}
+        h2,h3{margin:0 0 10px;text-align:center}
+      </style>`;
+    w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${title}</title>${css}</head><body>${html}</body></html>`);
+    w.document.close();
+    w.focus();
+    w.onafterprint = () => { try{w.close();}catch{} };
+    w.print();
+  }
+
+   // ====== [REGION: Router theo hash] ======
+  const views = {
+    home:"view-home",
+    "vb-manager":"view-vb-manager", "vb-den":"view-vb-den", "vb-di":"view-vb-di", "vb-search":"view-vb-search",
+    "dv-taomoi":"view-dv-taomoi", "dv-chitiet":"view-dv-chitiet", "dv-luutru":"view-dv-luutru",
+    "bc-chitiet":"view-bc-chitiet", "bc-tonghop":"view-bc-tonghop", "bc-trienkhai":"view-bc-trienkhai",
+    "qt-phanquyen":"view-qt-phanquyen", "qt-matkhautv":"view-qt-matkhautv", "qt-catalogs":"view-qt-catalogs"
+  };
+
+  function resetActiveForms(){
+    document.querySelectorAll('form').forEach(f=>{ try{ f.reset(); }catch{} });
+  }
+
+  function show(view){
+    resetActiveForms();
+    for(const id of Object.values(views)) $(id)?.classList.add('hide');
+    const vid = views[view] || "view-home";
+    $(vid)?.classList.remove('hide');
+    document.querySelectorAll(".navlink").forEach(a=>a.classList.remove('active'));
+    const a = document.querySelector(`.navlink[href="#${view}"]`); if (a) a.classList.add('active');
+    if (view==="home") loadHome();
+    if (view==="#qt-phanquyen".slice(1)) { loadUsers(); try{ loadDatalists(); }catch{} }
+    if (view==="#dv-taomoi".slice(1)) loadDatalists();
+    if (view==="#dv-chitiet".slice(1)) loadDatalists();
+  }
+ window.addEventListener('hashchange', ()=> show(location.hash.slice(1)));
+// (bỏ lời gọi ở đây)
+
+// Click vào summary "Trang chủ" để về #home và tô active
+document.getElementById('sumHome')?.addEventListener('click', (e)=>{ e.preventDefault?.(); location.hash = '#home'; });
+const _oldShow = show; show = (v)=>{ _oldShow(v); document.getElementById('sumHome')?.classList.toggle('active', (v||'home')==='home'); };
+show(location.hash.slice(1) || "home");
+
+  // ====== [REGION: UI theo vai trò] ======
+    function shareModesByRole(role){
+    if (role === "admin" || role === "manager_all") return [
+      {v:"user",  t:"Cá nhân (nhập email)"},
+      {v:"chibo", t:"Theo Chi bộ"},
+      {v:"donvi", t:"Theo Đơn vị/Bộ phận"},
+      {v:"all",   t:"Toàn bộ hệ thống"},
+    ];
+      if (role === "manager_chibo") return [
+    {v:"user",t:"Cá nhân (nhập email)"},
+    {v:"chibo",t:"Theo Chi bộ"}
+  ];
+
+    if (role === "manager_unit") return [
+      {v:"user",  t:"Cá nhân (nhập email)"},
+      {v:"donvi", t:"Theo Đơn vị/Bộ phận"},
+    ];
+    return [{v:"user", t:"Cá nhân (nhập email)"}];
+  }
+
+  function defaultScopesForRole(role){
+    if (role==='admin')        return {vb:true,dv:true,bc:true,personal:true,manageAll:true};
+    if (role==='manager_all')  return {vb:true,dv:true,bc:true,personal:true,manageAll:true};
+    if (role==='manager_unit') return {vb:true,dv:true,bc:true,personal:true,manageAll:false};
+    if (role==='manager_chibo')return {vb:true,dv:true,bc:true,personal:true,manageAll:false};
+    return {vb:true,dv:true,bc:true,personal:true,manageAll:false};
+  }
+
+  function computeUserScope(){
+    const role   = AUTH_USER?.role || 'user';
+    const base   = defaultScopesForRole(role);
+    const scopes = AUTH_USER?.scopes || {};
+    const isSuper = (role === 'admin' || role === 'manager_all');
+
+    const canVB = isSuper ? true : (("vb" in scopes) ? !!scopes.vb : base.vb);
+    const canDV = isSuper ? true : (("dv" in scopes) ? !!scopes.dv : base.dv);
+    const canBC = isSuper ? true : (("bc" in scopes) ? !!scopes.bc : base.bc);
+
+    const manageAll = isSuper ? true : (!!AUTH_USER?.manageAll || base.manageAll);
+
+    const units = Array.isArray(AUTH_USER?.manageUnits) ? AUTH_USER.manageUnits.slice() : [];
+    const chiBo = Array.isArray(AUTH_USER?.manageChiBo) ? AUTH_USER.manageChiBo.slice() : [];
+
+    const userUnit  = AUTH_USER?.userUnit  || null;
+    const userChiBo = AUTH_USER?.userChiBo || null;
+    if (!isSuper && role === 'user'){
+      if (userUnit  && !units.includes(userUnit))  units.push(userUnit);
+      if (userChiBo && !chiBo.includes(userChiBo)) chiBo.push(userChiBo);
+    }
+
+    return { role, canVB, canDV, canBC, personal:true, manageAll, units, chiBo };
+  }
+
+  async function enforcePersonalCreateLimit(){
+  try{
+    if (AUTH_USER?.role !== 'user' || !AUTH_USER?.email) return;
+    const email = AUTH_USER.email.trim().toLowerCase();
+    const linkCreate = document.querySelector(`a[href="#dv-taomoi"]`);
+    if (!linkCreate) return;
+
+    const rsp = await apiFetch('/members?text='+encodeURIComponent(email))
+      .then(r=>r.json()).catch(()=>({}));
+
+    const hasMine = Array.isArray(rsp.items)
+      ? rsp.items.some(m => (m.email||'').toLowerCase() === email)
+      : false;
+
+    // Ẩn hoàn toàn nếu user đã có hồ sơ
+    if (hasMine){
+      linkCreate.style.display = 'none';
+      // Nếu đang ở trang tạo mới thì đẩy về trang chủ để tránh thao tác tiếp
+      if (location.hash === '#dv-taomoi'){
+        location.hash = '#home';
+      }
+    } else {
+      linkCreate.style.display = '';
+    }
+
+    // Ẩn cả group <details> “Đảng viên” nếu không còn mục con hiển thị
+    hideEmptyNavGroups();
+  }catch{}
+}
+
+
+  function gateNavByScope(){
+    const S = computeUserScope();
+
+    document.querySelectorAll('.side .tree a').forEach(a => a.style.display = '');
+
+    const isAdmin = (S.role === 'admin');
+    const adminOnly = [
+      `a[href="#qt-phanquyen"]`,
+      `a[href="#qt-catalogs"]`
+    ];
+    adminOnly.forEach(sel=>{
+      const el = document.querySelector(sel);
+      if (el) el.style.display = isAdmin ? '' : 'none';
+    });
+
+    const toHide = [];
+    if (!S.canVB){
+      toHide.push(`a[href="#vb-manager"]`,`a[href="#vb-den"]`,`a[href="#vb-di"]`,`a[href="#vb-search"]`);
+    }
+    if (!S.canDV){
+      toHide.push(`a[href="#dv-taomoi"]`,`a[href="#dv-chitiet"]`,`a[href="#dv-luutru"]`);
+    }
+    if (!S.canBC){
+      toHide.push(`a[href="#bc-chitiet"]`,`a[href="#bc-tonghop"]`,`a[href="#bc-trienkhai"]`);
+    }
+       if (S.role === 'user'){
+      // User không được upload/chia sẻ và không xem các báo cáo
+      toHide.push(
+        `a[href="#vb-manager"]`,
+        `a[href="#bc-chitiet"]`,
+        `a[href="#bc-tonghop"]`,
+        `a[href="#bc-trienkhai"]`
+      );
+      // GIỮ LẠI các mục VB đến/đi/tìm kiếm để user vẫn xem được tài liệu từ thư mục “Văn bản”
+    }
+
+    // Ẩn Báo cáo Tổng hợp nếu KHÔNG phải admin/manager_all
+    if (!(S.role === 'admin' || S.role === 'manager_all')){
+      toHide.push(`a[href="#bc-tonghop"]`);
+    }
+
+    toHide.forEach(sel=>{
+      const el = document.querySelector(sel);
+      if (el) el.style.display = 'none';
+    });
+
+    const cur = location.hash || '#home';
+    if (toHide.includes(`a[href="${cur}"]`)) location.hash = '#home';
+
+    enforcePersonalCreateLimit();
+hideEmptyNavGroups();
+  }
+
+  function filterSelectOptionsByList(selectEl, allowedList){
+    if (!selectEl || !Array.isArray(allowedList) || !allowedList.length) return;
+    [...selectEl.options].forEach(o=>{
+      const text = (o.text||'').trim();
+      const val  = (o.value||'').trim();
+      if (val==='' || allowedList.includes(text) || allowedList.includes(val)){
+        o.hidden = false;
+      } else {
+        o.hidden = true;
+      }
+    });
+    try{
+      const cur = selectEl.value;
+      const ok = allowedList.includes(cur) || allowedList.includes(selectEl.options[selectEl.selectedIndex]?.text);
+      if (!ok) selectEl.value='';
+    }catch{}
+  }
+  function filterDatalistOptionsByList(datalistEl, allowedList){
+    if (!datalistEl || !Array.isArray(allowedList) || !allowedList.length) return;
+    datalistEl.innerHTML = allowedList.map(v=>`<option>${v}</option>`).join('');
+  }
+
+  function applyScopeFilters(){
+    const S = computeUserScope();
+    resetInputsForRoleSwitch();
+
+    if (S.units.length){
+      ['selDonVi','denDonVi','diDonVi','qDonVi'].forEach(id=> filterSelectOptionsByList($(id), S.units));
+      filterDatalistOptionsByList($('lstShareDonVi'), S.units);
+    }
+    if (S.chiBo.length){
+      filterDatalistOptionsByList($('lstChiBo'), S.chiBo);
+      filterDatalistOptionsByList($('lstShareChiBo'), S.chiBo);
+    }
+
+    if (S.manageAll) return;
+
+    if (S.role === 'user'){
+      const unit = S.units[0] || '';
+      const chi  = S.chiBo[0] || '';
+
+      ['selDonVi','denDonVi','diDonVi','qDonVi'].forEach(id=>{
+        const el = $(id); if (!el) return;
+        if (unit) el.value = unit;
+        el.disabled = true;
+      });
+
+      if ($('memChiBo')) { $('memChiBo').value = chi; $('memChiBo').disabled = true; }
+      if ($('memText') && AUTH_USER?.email){
+        $('memText').value = AUTH_USER.email;
+        $('memText').disabled = true;
+      }
+    }
+  }
+
+  function applyRoleUI(){
+    applyScopeFilters(); // chạy đầu vào
+    const isAdmin = AUTH_USER && AUTH_USER.role === 'admin';
+
+    $('nav-admin').style.display = '';
+
+    const adminOnly = [`a[href="#qt-phanquyen"]`, `a[href="#qt-catalogs"]`];
+    adminOnly.forEach(sel=>{
+      const el = document.querySelector(sel);
+      if (el) el.style.display = isAdmin ? '' : 'none';
+    });
+
+    if (!isAdmin) $('btnAuth').style.display='none';
+
+    const modes = shareModesByRole(AUTH_USER?.role||'user');
+    if ($('sMode')) $('sMode').innerHTML = modes.map(m=>`<option value="${m.v}">${m.t}</option>`).join('');
+    showShareBoxes();
+
+    gateNavByScope();
+    setTimeout(applyScopeFilters, 0);
+    setTimeout(enforcePersonalCreateLimit, 0);
+  }
+
+// Ẩn cả <details> nếu không còn link con hiển thị
+function hideEmptyNavGroups(){
+  document.querySelectorAll('nav.side details').forEach(d=>{
+    const links = d.querySelectorAll('.tree a');
+    if (!links.length) return;
+    const anyVisible = [...links].some(a => a.style.display !== 'none');
+    d.style.display = anyVisible ? '' : 'none';
+  });
+}
+
+
+  function showShareBoxes(){
+    const mode = $('sMode')?.value;
+    if (!$('bxEmail') || !$('bxChiBo') || !$('bxDonVi')) return;
+    $('bxEmail').style.display = (mode==='user') ? '' : 'none';
+    $('bxChiBo').style.display = (mode==='chibo') ? '' : 'none';
+    $('bxDonVi').style.display = (mode==='donvi') ? '' : 'none';
+  }
+  $('sMode')?.addEventListener('change', showShareBoxes);
+
+  // ====== [REGION: Auth & Overlay] ======
+async function refreshAuthUI(){
+  try{
+    const j = await (await apiFetch('/auth/status')).json();
+    AUTH_USER = j.user || null;
+
+    if (j.ok && j.user){
+      $('who').textContent = `${j.user.fullName || j.user.email} (${j.user.role})`;
+      $('btnLogin').classList.add('hide');
+      $('btnLogout').classList.remove('hide');
+      $('loginOverlay').style.display = 'none';
+    } else {
+      $('who').textContent = 'Chưa đăng nhập';
+      $('btnLogin').classList.remove('hide');
+      $('btnLogout').classList.add('hide');
+      $('lgEmail').value = localStorage.getItem('lg_u') || '';
+      $('lgPass').value  = localStorage.getItem('lg_p') || '';
+      $('loginOverlay').style.display = 'flex';
+    }
+
+    // Ẩn nút cấp quyền Drive nếu chưa authorized hoặc không phải admin
+    if (j.ok && j.authorized && AUTH_USER?.role === 'admin'){
+      $('btnAuth').style.display = '';
+    } else {
+      $('btnAuth').style.display = 'none';
+    }
+
+    // Dọn query sau khi OAuth xong
+    if (new URL(location.href).searchParams.get('authok') === '1'){
+      history.replaceState({}, "", "/");
+    }
+
+    // So sánh snapshot quyền & phát sự kiện khi thay đổi
+    const prevSnap = window.__authSnap || null;
+    const nextSnap = j.user ? JSON.stringify({
+      id: j.user.id,
+      role: j.user.role,
+      manageAll: !!j.user.manageAll,
+      manageUnits: j.user.manageUnits || [],
+      manageChiBo: j.user.manageChiBo || [],
+      userUnit: j.user.userUnit || null,
+      userChiBo: j.user.userChiBo || null
+    }) : null;
+
+    const changed = prevSnap !== nextSnap;
+    window.__authSnap = nextSnap;
+
+    applyRoleUI();
+    if (changed) {
+      document.dispatchEvent(new CustomEvent('auth:changed', { detail: j.user || null }));
+    }
+  }catch(e){
+    console.error('refreshAuthUI error:', e);
+  }
+}
+
+// Gọi lần đầu
+refreshAuthUI();
+
+  $('btnLogin').onclick = ()=>{
+  window.__LG_SUBMIT_ONCE = false;     // <<< reset cờ
+  $('loginOverlay').style.display='flex';
+};
+
+$('btnLogout').onclick = async ()=>{ await apiFetch('/auth/logout',{method:'POST'}); AUTH_USER=null; refreshAuthUI(); };
+
+// Map DonVi để đổi giữa id và label khi lưu/hiển thị
+let DONVI_ID2LABEL = {};
+let DONVI_LABEL2ID = {};
+ // ====== [REGION: Danh mục dùng chung] ======
+  async function loadCatalogs(){
+    try{
+      const data = await (await apiFetch('/catalogs')).json();
+      const fill = (el, arr, blank)=>{ if(!el) return; el.innerHTML = blank?'<option value="">(Tất cả)</option>':''; (arr||[]).forEach(it=> el.append(new Option(it.label||it,it.id||it))); };
+      fill($('selLoai'), data.loaiVanBan);
+      fill($('selMucDo'), data.mucDo);
+      fill($('selDonVi'), data.donVi);
+      if ($('selNhan')) { $('selNhan').innerHTML=''; (data.nhan||[]).forEach(v=> $('selNhan').append(new Option(v,v))); }
+      fill($('qLoai'), data.loaiVanBan, true); fill($('qMucDo'), data.mucDo, true); fill($('qDonVi'), data.donVi, true);
+      fill($('denMucDo'), data.mucDo, true);   fill($('denDonVi'), data.donVi, true);
+      fill($('diMucDo'), data.mucDo, true);    fill($('diDonVi'), data.donVi, true);
+      const dvList = (data.donVi||[]).map(x=>x.label||x);
+
+      resetInputsForRoleSwitch();
+      applyScopeFilters();
+
+      if ($('lstDonVi')) $('lstDonVi').innerHTML = dvList.map(v=>`<option>${v}</option>`).join('');
+      if ($('lstShareDonVi')) $('lstShareDonVi').innerHTML = dvList.map(v=>`<option>${v}</option>`).join('');
+      // Lưu map id<->label để chuyển đổi
+DONVI_ID2LABEL = Object.fromEntries((data.donVi||[]).map(x=>[x.id||x, x.label||x]));
+DONVI_LABEL2ID = Object.fromEntries((data.donVi||[]).map(x=>[x.label||x, x.id||x]));
+
+// Điền option: value=id, text=label
+if ($('uUnits'))     $('uUnits').innerHTML    = (data.donVi||[]).map(x=>`<option value="${x.id||x}">${x.label||x}</option>`).join('');
+if ($('uUserUnit'))  $('uUserUnit').innerHTML = ['<option value=""></option>'].concat((data.donVi||[]).map(x=>`<option value="${x.id||x}">${x.label||x}</option>`)).join('');
+
+      applyScopeFilters();
+    }catch{}
+  }
+  loadCatalogs();
+
+  $('btnCatLoad')?.addEventListener('click', async ()=>{
+    $('catMsg').textContent='Đang tải...';
+    const r = await apiFetch('/admin/catalogs').then(r=>r.json()).catch(()=>({}));
+    if (!r.ok){ $('catMsg').innerHTML='<span class="err">Cần đăng nhập admin</span>'; return; }
+    const toLines = (a)=> (a||[]).map(x=>`${x.id||x}|${x.label||x}`).join('\n');
+    $('catLoai').value = toLines(r.data.loaiVanBan);
+    $('catMucDo').value = toLines(r.data.mucDo);
+    $('catDonVi').value = toLines(r.data.donVi);
+    $('catNhan').value = (r.data.nhan||[]).join('\n');
+    $('catMsg').textContent='OK.';
+  });
+  $('btnCatSave')?.addEventListener('click', async ()=>{
+    const parsePairs = (txt)=> txt.split(/\r?\n/).map(s=>s.trim()).filter(Boolean).map(line=>{
+      const [id,label] = line.split('|').map(x=>x.trim());
+      return { id: id || label, label: label || id };
+    });
+    const body = {
+      loaiVanBan: parsePairs($('catLoai').value||''),
+      mucDo:      parsePairs($('catMucDo').value||''),
+      donVi:      parsePairs($('catDonVi').value||''),
+      nhan:       ($('catNhan').value||'').split(/\r?\n/).map(s=>s.trim()).filter(Boolean)
+    };
+    $('catMsg').textContent='Đang lưu...';
+    const r = await apiFetch('/admin/catalogs',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(r=>r.json()).catch(()=>({}));
+    $('catMsg').innerHTML = r.ok ? '<span class="ok">Đã lưu danh mục.</span>' : '<span class="err">'+(r.error||'Lỗi')+'</span>';
+    if (r.ok) loadCatalogs();
+  });
+
+  async function loadDatalists(){
+    try{
+      const chi = await (await apiFetch('/members/distinct?field=chiBo')).json();
+      if ($('lstChiBo')) $('lstChiBo').innerHTML = (chi.items||[]).map(v=>`<option>${v}</option>`).join('');
+      if ($('lstShareChiBo')) $('lstShareChiBo').innerHTML = (chi.items||[]).map(v=>`<option>${v}</option>`).join('');
+      if ($('lstAdminChiBo')) $('lstAdminChiBo').innerHTML = (chi.items||[]).map(v=>`<option>${v}</option>`).join('');
+// ngay sau 3 dòng fill datalist chi bộ hiện có trong loadDatalists()
+if ($('uChiBo')) $('uChiBo').innerHTML = (chi.items||[]).map(v=>`<option value="${v}">${v}</option>`).join('');
+
+      applyScopeFilters();
+    }catch{}
+  }
+
+  // ====== [REGION: Home] ======
+  async function loadHome(){
+    try{
+      const a = await (await apiFetch('/documents/latest?limit=1&scope=shared')).json();
+      if (a.ok && a.items.length){
+        const f = a.items[0];
+        $('latestHero').innerHTML = `
+          <div>
+            <a href="${docPreviewLink(f)}" target="_blank" rel="noopener"><b>${esc(f.name)}</b></a>
+            ${f.id?` • <a class="btn" href="/documents/${f.id}/download">Tải file</a>`:''}
+          </div>
+          <div class="muted" style="margin-top:6px">
+            Số hiệu: ${f.soHieu||'-'} • Người gửi: ${f.nguoiGui||'-'} •
+            Mức độ: <span class="pill">${f.mucDo||'-'}</span> •
+            Hạn xử lý: ${fmtDate(f.hanXuLy)||'-'} •
+            Ngày: ${(f.createdAt||'').replace('T',' ').replace('Z','')}
+          </div>
+          <div style="margin-top:6px">${f.trichYeu?f.trichYeu:'<span class="muted">(Chưa có trích yếu)</span>'}</div>`;
+      } else $('latestHero').textContent='Chưa có dữ liệu.';
+
+      const r = await (await apiFetch('/documents/latest?limit=10&scope=shared')).json();
+      if (!r.ok || !r.items.length){ $('recentList').textContent='Chưa có dữ liệu.'; return; }
+      const rows = r.items.map(x=>`
+        <tr>
+          <td>
+            <a href="${docPreviewLink(x)}" target="_blank" rel="noopener"><b>${esc(x.name)}</b></a>
+            <br><small class="muted">Số hiệu: ${x.soHieu||'-'}</small>
+          </td>
+          <td>${esc(x.trichYeu)}</td>
+          <td>${esc(x.nguoiGui)}</td>
+          <td>${esc(x.mucDo)}</td>
+          <td>${fmtDate(x.hanXuLy)||''}</td>
+          <td>${(x.createdAt||'').replace('T',' ').replace('Z','')}</td>
+          <td>${x.id?`<a class="btn" href="/documents/${x.id}/download">Tải file</a>`:''}</td>
+        </tr>`).join('');
+      $('recentList').innerHTML = `<table><thead><tr><th>Tên tệp</th><th>Trích yếu</th><th>Người gửi</th><th>Mức độ</th><th>Hạn xử lý</th><th>Ngày</th><th></th></tr></thead><tbody>${rows}</tbody></table>`;
+    }catch{
+      $('latestHero').textContent='Lỗi tải dữ liệu'; $('recentList').textContent='Lỗi tải dữ liệu';
+    }
+  }
+  loadHome();
+
+  // ====== [REGION: Tìm kiếm tổng văn bản] ======
+  $('searchForm').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const qs = new URLSearchParams();
+    const v=id=>$(id).value.trim();
+    if(v('qFrom'))qs.set('from',v('qFrom'));
+    if(v('qTo'))qs.set('to',v('qTo'));
+    if(v('qLoai'))qs.set('loai',v('qLoai'));
+    if(v('qMucDo'))qs.set('mucDo',v('qMucDo'));
+    if(v('qDonVi'))qs.set('donVi',v('qDonVi'));
+    if(v('qText'))qs.set('text',v('qText'));
+
+    qs.set('scope','shared'); // <<< CHỈ vùng dữ liệu chia sẻ (Drive backend auto-share im lặng)
+
+    $('searchOut').textContent='Đang tìm...';
+    const r = await (await apiFetch('/documents/search?'+qs.toString())).json();
+    if(!r.ok){ $('searchOut').innerHTML=`<span class="err">${r.error||'Lỗi tìm kiếm'}</span>`; return; }
+    if(!r.count){ $('searchOut').textContent='Không có dữ liệu.'; return; }
+
+    const rows = r.files.map(f=>`
+      <tr>
+        <td><a href="${docPreviewLink(f)}" target="_blank" rel="noopener">${esc(f.name)}</a><br><small class="muted">ID: ${f.id}</small></td>
+        <td>${esc(f.appProperties?.soHieu)}</td>
+        <td>${esc(f.appProperties?.loai)}</td>
+        <td>${esc(f.appProperties?.donVi)}</td>
+        <td>${esc(f.appProperties?.mucDo)}</td>
+        <td>${esc(f.appProperties?.nguoiGui)}</td>
+        <td>${((f.createdAt||f.modifiedTime||'')||'').replace('T',' ').replace('Z','')}</td>
+        <td>${fmtDate((f.appProperties&&f.appProperties.hanXuLy)||'')}</td>
+        <td>${esc(f.appProperties?.trichYeu)}</td>
+        <td>${f.id?`<a class="btn" href="/documents/${f.id}/download">Tải file</a>`:''}</td>
+      </tr>`).join('');
+
+    $('searchOut').innerHTML = `<div><b>Kết quả:</b> ${r.count} tệp</div>
+      <table><thead><tr><th>Tên tệp</th><th>Số hiệu</th><th>Loại</th><th>Đơn vị</th><th>Mức độ</th><th>Người gửi/Nhận</th><th>Ngày nhận/Gửi</th><th>Hạn xử lý</th><th>Trích yếu</th><th></th></tr></thead><tbody>${rows}</tbody></table>`;
+  });
+
+  // ====== [REGION: Upload văn bản] ======
+  $('uDate').value = new Date().toISOString().slice(0,10);
+  $('uFile').addEventListener('change', ()=>{
+    const f=$('uFile').files?.[0]; if(!f) return;
+    if(!$('uDisplayName').value.trim()) $('uDisplayName').value=f.name;
+  });
+if ($('uFlow') && !$('uFlow').value) $('uFlow').value = 'di';
+
+  $('uploadForm').addEventListener('submit', async(e)=>{
+    e.preventDefault();
+    const f=$('uFile').files[0]; if(!f){alert('Chọn tệp');return;}
+    const fd=new FormData(e.target); fd.set('file',f);
+    $('uMsg').textContent='Đang lưu...';
+    const r = await (await apiFetch('/documents/upload?date='+encodeURIComponent($('uDate').value),{method:'POST',body:fd})).json();
+    if (r.ok){
+      $('uMsg').innerHTML = `<span class="ok">Tải tệp thành công.</span> <a target="_blank" rel="noopener" href="${r.webViewLink}">${r.name}</a>`;
+      e.target.reset();
+      $('uDate').value = new Date().toISOString().slice(0,10);
+      $('sFileId').value = r.fileId;
+      loadHome();
+    } else {
+      $('uMsg').innerHTML = `<span class="err">${r.error||'Lỗi'}</span>`;
+    }
+  });
+
+  // ====== [REGION: Chia sẻ văn bản] ======
+  $('shareForm').addEventListener('submit', async(e)=>{
+    e.preventDefault();
+    const mode = $('sMode').value;
+    const body={ fileId:$('sFileId').value.trim(), role:$('sRole').value, notify:$('sNotify').checked, message:$('sMessage').value.trim()||undefined, mode };
+    if (!body.fileId) { $('sMsg').innerHTML='<span class="err">Thiếu File ID</span>'; return; }
+    if (mode==='user'){
+      body.email = $('sEmail').value.trim();
+      if(!body.email){ $('sMsg').innerHTML='<span class="err">Nhập email người nhận</span>'; return; }
+    } else if (mode==='chibo'){
+      body.target = $('sChiBo').value.trim();
+      if(!body.target){ $('sMsg').innerHTML='<span class="err">Chọn tên Chi bộ</span>'; return; }
+    } else if (mode==='donvi'){
+      body.target = $('sDonVi').value.trim();
+      if(!body.target){ $('sMsg').innerHTML='<span class="err">Chọn Đơn vị/Bộ phận</span>'; return; }
+    }
+    $('sMsg').textContent='Đang chia sẻ...';
+    const j = await (await apiFetch('/documents/share', { method:'POST', body: JSON.stringify(body) })).json();
+    $('sMsg').innerHTML = j.ok ? `<span class="ok">Thành công: ${j.okCount}/${j.total}.</span> <a target="_blank" rel="noopener" href="${j.link}">Mở tệp</a>` : `<span class="err">${j.error||'Lỗi'}</span>`;
+  });
+
+  // ====== [REGION: VB đến/đi – bộ lọc nhanh] ======
+  async function runFlowSearch(flow, outId, fromId, toId, senderOrReceiverId, mucDoId, donViId, textId){
+  const qs = new URLSearchParams();
+  const v = id => $(id).value.trim();
+
+  if(v(fromId)) qs.set('from', v(fromId));
+  if(v(toId))   qs.set('to',   v(toId));
+
+  // Đổi tên tham số theo luồng
+  const partyKey = (flow === 'di') ? 'receiver' : 'sender';
+  if(v(senderOrReceiverId)) qs.set(partyKey, v(senderOrReceiverId));
+
+  if(v(mucDoId))  qs.set('mucDo', v(mucDoId));
+  if(v(donViId))  qs.set('donVi', v(donViId));
+  if(v(textId))   qs.set('text',  v(textId));
+
+  // Chỉ rõ luồng bắt buộc
+  qs.set('flow', flow);
+
+  // Ưu tiên vùng dữ liệu chia sẻ (nếu backend hỗ trợ). Không ảnh hưởng nếu backend bỏ qua.
+  qs.set('scope', 'shared');
+
+  $(outId).textContent = 'Đang tìm...';
+  const r = await (await apiFetch('/documents/search?' + qs.toString())).json();
+
+  if(!r.ok){ $(outId).innerHTML = `<span class="err">${r.error||'Lỗi tìm kiếm'}</span>`; return; }
+  if(!r.count){ $(outId).textContent='Không có dữ liệu.'; return; }
+
+  const rows = r.files.map(f=>`
+    <tr>
+      <td><a target="_blank" rel="noopener" href="${docPreviewLink(f)}">${esc(f.name)}</a></td>
+      <td>${esc(partyKey==='sender' ? f.appProperties?.nguoiGui : f.appProperties?.nguoiNhan)}</td>
+      <td>${(f.createdAt || f.modifiedTime || '').replace('T',' ').replace('Z','')}</td>
+      <td>${fmtDate((f.appProperties&&f.appProperties.hanXuLy)||'')}</td>
+      <td>${esc(f.appProperties?.trichYeu)}</td>
+      <td>${f.id?`<a class="btn" href="/documents/${f.id}/download">Tải file</a>`:''}</td>
+    </tr>`).join('');
+
+  $(outId).innerHTML = `<table>
+    <thead><tr><th>Tên tệp</th><th>${partyKey==='sender'?'Người gửi':'Người nhận'}</th><th>Ngày</th><th>Hạn xử lý</th><th>Trích yếu</th><th></th></tr></thead>
+    <tbody>${rows}</tbody></table>`;
+}
+
+// [PATCH] Gắn submit chuẩn luồng cho Văn bản đến / Văn bản đi
+// VB đến
+document.getElementById('form-den')?.addEventListener('submit', function(e){
+  e.preventDefault();
+  runFlowSearch(
+    'den',           // <<< BẮT BUỘC: luồng = 'den'
+    'denOut',
+    'denFrom','denTo',
+    'denSender',     // người gửi
+    'denMucDo','denDonVi','denText'
+  );
+});
+
+// VB đi
+document.getElementById('form-di')?.addEventListener('submit', function(e){
+  e.preventDefault();
+  runFlowSearch(
+    'di',            // <<< BẮT BUỘC: luồng = 'di'
+    'diOut',
+    'diFrom','diTo',
+    'diReceiver',    // người nhận
+    'diMucDo','diDonVi','diText'
+  );
+});
+
+
+  // ====== [REGION: Đảng viên – tạo mới & import] ======
+  $('btnOpenImp').onclick = ()=> $('impBox').classList.toggle('hide');
+
+  $('memCreate').addEventListener('submit', async(e)=>{
+    e.preventDefault();
+
+    if (AUTH_USER?.role === 'user' && AUTH_USER?.email){
+      try{
+        const email = AUTH_USER.email.trim().toLowerCase();
+        const r0 = await apiFetch('/members?text='+encodeURIComponent(email)).then(r=>r.json()).catch(()=>({}));
+        const hasMine = Array.isArray(r0.items) ? r0.items.some(m => (m.email||'').toLowerCase() === email) : false;
+        if (hasMine){
+          $('memMsg').innerHTML = '<span class="err">Bạn đã có hồ sơ cá nhân. Mỗi người chỉ được tạo 1 lần.</span>';
+          return;
+        }
+      }catch{}
+    }
+
+    const body={
+      hoTen:$('mHoTen').value, tenGoiKhac:$('mTenKhac').value, ngaySinh:$('mNgaySinh').value, gioiTinh:$('mGioiTinh').value,
+      dienThoai:$('mDT').value, danToc:$('mDanToc').value, tonGiao:$('mTonGiao').value, ksTinh:$('mKSTinh').value, ksHuyen:$('mKSHuyen').value, ksXa:$('mKSXa').value,
+      ngayVaoDang:$('mVaoDang').value, ngayChinhThuc:$('mChinhThuc').value, soTheDang:$('mSoThe').value, soCCCD:$('mCCCD').value, ngayCapCCCD:$('mNgayCap').value,
+      chiBo:$('mChiBo').value, dangUyCapUy:$('mCapUy').value, donViBoPhan:$('mDonVi').value, email:$('mEmail').value,
+      ngayBatDauSH:$('mBD').value, ngayKetThucSH:$('mKT').value, trangThai:$('mTrangThai').value, ghiChu:$('mGhiChu').value
+    };
+    $('memMsg').textContent='Đang lưu...';
+    const j=await (await apiFetch('/members',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})).json();
+    if(j.ok){
+      $('memMsg').innerHTML = '<span class="ok">Lưu thông tin thành công.</span>';
+      e.target.reset();
+      location.hash = '#dv-taomoi';
+      enforcePersonalCreateLimit(); // <<< đảm bảo ẩn link Tạo mới cho USER sau khi lưu thành công
+    }else{
+      $('memMsg').innerHTML = `<span class="err">${j.error||'Lỗi: trùng/thiếu dữ liệu'}</span>`;
+    }
+  });
+
+  // ====== [REGION: Đảng viên – danh sách, sửa nhanh, in] ======
+  async function loadMembers(){
+    const qs=new URLSearchParams();
+    if($('memText').value.trim())qs.set('text',$('memText').value.trim());
+    if($('memChiBo').value.trim())qs.set('chiBo',$('memChiBo').value.trim());
+
+    $('memOut').textContent='Đang tải...';
+    const j=await (await apiFetch('/members?'+qs.toString())).json();
+    if(!j.ok){$('memOut').innerHTML='<span class="err">'+(j.error||'Lỗi tải dữ liệu')+'</span>';return;}
+    let items = j.items||[];
+
+    if (AUTH_USER?.role === 'user' && AUTH_USER.email){
+      items = items.filter(m => (m.email && m.email.toLowerCase() === AUTH_USER.email.toLowerCase()));
+    }
+
+    if(!items.length){$('memOut').textContent='Không có dữ liệu.';return;}
+
+    const isAdmin = AUTH_USER && AUTH_USER.role === 'admin';
+    const rows=items.map(m=>{
+      const btnDel = isAdmin ? `<button class="btn" data-del="${m.id}">Xóa</button>` : '';
+      return `
+        <tr>
+          <td><b>${m.hoTen}</b><br><small class="muted">${m.soTheDang||''} • ${m.soCCCD||''}</small></td>
+          <td>${m.chiBo||''}</td>
+          <td>${m.email||''}</td>
+          <td>${m.dienThoai||''}</td>
+          <td>
+            <button class="btn" data-print="${m.id}">In</button>
+            <button class="btn link" data-edit="${m.id}">Sửa</button>
+            ${btnDel}
+          </td>
+        </tr>`;
+    }).join('');
+    $('memOut').innerHTML = `<table><thead><tr><th>Họ tên</th><th>Chi bộ</th><th>Email</th><th>Điện thoại</th><th>Thao tác</th></tr></thead><tbody>${rows}</tbody></table>`;
+
+    document.querySelectorAll('[data-edit]').forEach(btn=>{
+      btn.onclick = async ()=>{
+        const id=btn.getAttribute('data-edit');
+        const j=await (await apiFetch('/members/'+id)).json();
+        if(!j.ok) return;
+        const m=j.item||{};
+        $('eId').value=id;
+        $('eHoTen').value       = m.hoTen||'';
+        $('eTenKhac').value     = m.tenGoiKhac||'';
+        $('eNgaySinh').value    = m.ngaySinh||'';
+        $('eGioiTinh').value    = m.gioiTinh||'';
+        $('eDT').value          = m.dienThoai||'';
+        $('eDanToc').value      = m.danToc||'';
+        $('eTonGiao').value     = m.tonGiao||'';
+        $('eKSTinh').value      = m.ksTinh||'';
+        $('eKSHuyen').value     = m.ksHuyen||'';
+        $('eKSXa').value        = m.ksXa||'';
+        $('eVaoDang').value     = m.ngayVaoDang||'';
+        $('eChinhThuc').value   = m.ngayChinhThuc||'';
+        $('eSoThe').value       = m.soTheDang||'';
+        $('eCCCD').value        = m.soCCCD||'';
+        $('eNgayCap').value     = m.ngayCapCCCD||'';
+        $('eChiBo').value       = m.chiBo||'';
+        $('eCapUy').value       = m.dangUyCapUy||'';
+        $('eDonVi').value       = m.donViBoPhan||'';
+        $('eEmail').value       = m.email||'';
+        $('eBD').value          = m.ngayBatDauSH||'';
+        $('eKT').value          = m.ngayKetThucSH||'';
+        $('eTrangThai').value   = m.trangThai||'';
+        $('eGhiChu').value      = m.ghiChu||'';
+        $('editBox').classList.remove('hide'); $('eMsg').textContent='';
+        try{ loadDatalists(); }catch{}
+        window.scrollTo({top:$('editBox').offsetTop-80,behavior:'smooth'});
+      };
+    });
+
+    document.querySelectorAll('[data-del]').forEach(btn=>{
+      btn.onclick = async ()=>{
+        if (!confirm('Xóa hồ sơ này? (Chỉ admin)')) return;
+        const id=btn.getAttribute('data-del');
+        const j=await (await apiFetch('/members/'+id,{method:'DELETE'})).json();
+        if (!j.ok) alert(j.error||'Lỗi'); else loadMembers();
+      };
+    });
+
+    document.querySelectorAll('[data-print]').forEach(btn=>{
+      btn.onclick = async ()=>{
+        const id=btn.getAttribute('data-print'); const j=await (await apiFetch('/members/'+id)).json(); if(!j.ok) return;
+        const m=j.item;
+        const html = `
+          <h2>Lý lịch Đảng viên</h2>
+          <table>
+            <tr><td><b>Họ và tên</b></td><td>${m.hoTen||''}</td><td><b>Tên gọi khác</b></td><td>${m.tenGoiKhac||''}</td></tr>
+            <tr><td><b>Ngày sinh</b></td><td>${m.ngaySinh||''}</td><td><b>Giới tính</b></td><td>${m.gioiTinh||''}</td></tr>
+            <tr><td><b>Điện thoại</b></td><td>${m.dienThoai||''}</td><td><b>Email</b></td><td>${m.email||''}</td></tr>
+            <tr><td><b>Dân tộc</b></td><td>${m.danToc||''}</td><td><b>Tôn giáo</b></td><td>${m.tonGiao||''}</td></tr>
+            <tr><td><b>Nơi sinh</b></td><td colspan="3">${[m.ksXa,m.ksHuyen,m.ksTinh].filter(Boolean).join(', ')}</td></tr>
+            <tr><td><b>Ngày vào Đảng</b></td><td>${m.ngayVaoDang||''}</td><td><b>Ngày chính thức</b></td><td>${m.ngayChinhThuc||''}</td></tr>
+            <tr><td><b>Số thẻ Đảng</b></td><td>${m.soTheDang||''}</td><td><b>Số CCCD</b></td><td>${m.soCCCD||''}</td></tr>
+            <tr><td><b>Ngày cấp CCCD</b></td><td>${m.ngayCapCCCD||''}</td><td><b>Chi bộ</b></td><td>${m.chiBo||''}</td></tr>
+            <tr><td><b>Cấp ủy</b></td><td>${m.dangUyCapUy||''}</td><td><b>Đơn vị/Bộ phận</b></td><td>${m.donViBoPhan||''}</td></tr>
+            <tr><td><b>Bắt đầu sinh hoạt</b></td><td>${m.ngayBatDauSH||''}</td><td><b>Kết thúc sinh hoạt</b></td><td>${m.ngayKetThucSH||''}</td></tr>
+            <tr><td><b>Trạng thái</b></td><td colspan="3">${m.trangThai||''}</td></tr>
+          </table>`;
+        const lans = confirm('In ngang? (OK = ngang, Cancel = dọc)');
+        printHTML("Lý lịch Đảng viên", html, lans);
+      };
+    });
+  }
+  $('memSearch').addEventListener('submit', e=>{e.preventDefault(); loadMembers(); });
+  $('eCancel').onclick = ()=> $('editBox').classList.add('hide');
+
+  $('editForm').addEventListener('submit', async(e)=>{
+    e.preventDefault();
+    const id=$('eId').value;
+    const body={
+      hoTen:$('eHoTen').value, tenGoiKhac:$('eTenKhac').value, ngaySinh:$('eNgaySinh').value, gioiTinh:$('eGioiTinh').value,
+      dienThoai:$('eDT').value, danToc:$('eDanToc').value, tonGiao:$('eTonGiao').value, ksTinh:$('eKSTinh').value, ksHuyen:$('eKSHuyen').value, ksXa:$('eKSXa').value,
+      ngayVaoDang:$('eVaoDang').value, ngayChinhThuc:$('eChinhThuc').value, soTheDang:$('eSoThe').value, soCCCD:$('eCCCD').value, ngayCapCCCD:$('eNgayCap').value,
+      chiBo:$('eChiBo').value, dangUyCapUy:$('eCapUy').value, donViBoPhan:$('eDonVi').value, email:$('eEmail').value,
+      ngayBatDauSH:$('eBD').value, ngayKetThucSH:$('eKT').value, trangThai:$('eTrangThai').value, ghiChu:$('eGhiChu').value
+    };
+    $('eMsg').textContent='Đang lưu...';
+    const j=await (await apiFetch('/members/'+id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})).json();
+    if (j.ok){
+      $('eMsg').innerHTML='<span class="ok">Đã lưu.</span>';
+      await loadMembers();
+      $('editBox').classList.add('hide');
+      window.scrollTo({top:$('memOut').offsetTop-80,behavior:'smooth'});
+    }else{
+      $('eMsg').innerHTML='<span class="err">'+(j.error||'Lỗi')+'</span>';
+    }
+  });
+  $('eCancel').onclick = ()=>{ $('editBox').classList.add('hide'); window.scrollTo({top:$('memOut').offsetTop-80,behavior:'smooth'}); };
+
+  // Import Members
+  let lastToken = null;
+  $('impForm').addEventListener('submit', async(e)=>{
+    e.preventDefault();
+    const f=$('impFile').files[0]; if(!f){alert('Chọn tệp .xlsx');return;}
+    const fd=new FormData(); fd.append('file', f);
+    $('impPreview').textContent='Đang kiểm tra...';
+    const j=await (await apiFetch('/members/import/preview',{method:'POST',body:fd})).json();
+    if(!j.ok){ $('impPreview').innerHTML=`<span class="err">${j.error||'Lỗi'}</span>`; return; }
+    lastToken = j.token;
+    const errLink = j.invalid ? `<a class="btn" href="/members/import/errors/${j.token}">Tải báo cáo lỗi</a>` : '';
+    const confirmBtn = j.valid ? `<button id="btnImpConfirm" class="btn primary">Xác nhận nhập (${j.valid})</button>` : '';
+    $('impPreview').innerHTML = `
+      <div><b>Tổng:</b> ${j.total} • <span class="ok">Hợp lệ:</span> ${j.valid} • <span class="err">Lỗi:</span> ${j.invalid}</div>
+      <div style="margin-top:8px;display:flex;gap:8px;align-items:center">${errLink} ${confirmBtn}</div>`;
+    if (j.valid){
+      document.getElementById('btnImpConfirm').onclick = async ()=>{
+        if (!lastToken) return;
+        $('impPreview').innerHTML += `<div class="muted" id="impDoing">Đang ghi dữ liệu...</div>`;
+        const rsp=await (await apiFetch('/members/import/confirm',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:lastToken})})).json();
+        if (rsp.ok){ $('impDoing').innerHTML = `<span class="ok">Đã nhập ${rsp.total} (mới: ${rsp.inserted}, cập nhật: ${rsp.updated}).</span>`; loadMembers(); }
+        else{ $('impDoing').innerHTML = `<span class="err">${rsp.error||'Lỗi'}</span>`; }
+      };
+    }
+  });
+
+  // ====== [REGION: Lưu trữ cá nhân] ======
+  $('perDate').value=new Date().toISOString().slice(0,10);
+  $('perUpload').addEventListener('submit', async(e)=>{
+    e.preventDefault();
+    const f=$('perFile').files[0]; if(!f){alert('Chọn tệp');return;}
+    const fd=new FormData(); fd.append('file',f);
+    fd.append('nhan',$('perLabel').value.trim()); fd.append('trichYeu',$('perNote').value.trim());
+    $('perMsg').textContent='Đang tải lên...';
+    const j=await (await apiFetch('/personal/upload?date='+encodeURIComponent($('perDate').value),{method:'POST',body:fd})).json();
+    if (j.ok){
+      $('perMsg').innerHTML=`<span class="ok">Đã lưu.</span> <a target="_blank" rel="noopener" href="${j.link}">${j.name}</a>`;
+      e.target.reset();
+      $('perDate').value=new Date().toISOString().slice(0,10);
+    } else {
+      $('perMsg').innerHTML=`<span class="err">${j.error||'Lỗi'}</span>`;
+    }
+  });
+  $('perSearch').addEventListener('submit', async(e)=>{
+    e.preventDefault();
+    const qs=new URLSearchParams();
+    if($('psFrom').value)qs.set('from',$('psFrom').value);
+    if($('psTo').value)qs.set('to',$('psTo').value);
+    if($('psText').value.trim())qs.set('text',$('psText').value.trim());
+    qs.set('scope','personal'); // <<< CHỈ dữ liệu cá nhân của chính user
+    const j=await (await apiFetch('/personal/search?'+qs.toString())).json();
+    if(!j.ok){$('perOut').innerHTML=`<span class="err">${j.error||'Lỗi'}</span>`;return;}
+    if(!j.items.length){$('perOut').textContent='Không có dữ liệu.';return;}
+    const rows=j.items.map(x=>`
+      <tr>
+        <td><a target="_blank" rel="noopener" href="${docPreviewLink(x)}">${esc(x.name)}</a></td>
+        <td>${esc(x.trichYeu)}</td>
+        <td>${(x.createdAt||'').replace('T',' ').replace('Z','')}</td>
+        <td>${x.id?`<a class="btn" href="/documents/${x.id}/download">Tải file</a> <button class="btn" data-del-personal="${x.id}">Xoá</button>`:''}</td>
+      </tr>`).join('');
+    $('perOut').innerHTML=`<table><thead><tr><th>Tên tệp</th><th>Trích yếu</th><th>Ngày</th><th>Thao tác</th></tr></thead><tbody>${rows}</tbody></table>`;
+    document.querySelectorAll('[data-del-personal]').forEach(btn=>{
+      btn.onclick = async ()=>{
+        if (!confirm('Xoá tài liệu này khỏi lưu trữ cá nhân?')) return;
+        const id = btn.getAttribute('data-del-personal');
+        const r=await (await apiFetch('/personal/'+id,{method:'DELETE'})).json();
+        if (!r.ok){ alert(r.error||'Lỗi'); } else { btn.closest('tr').remove(); }
+      };
+    });
+  });
+
+  // ====== [REGION: Báo cáo] ======
+ // === Báo cáo chi tiết Đảng viên (UI In rút gọn, Excel đầy đủ) ===
+$('rptMemDetail').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+
+  const qs = new URLSearchParams();
+  if ($('rmdFrom').value) qs.set('from', $('rmdFrom').value);
+  if ($('rmdTo').value)   qs.set('to',   $('rmdTo').value);
+  if ($('rmdText').value.trim())  qs.set('text',  $('rmdText').value.trim());
+  if ($('rmdChiBo').value.trim()) qs.set('chiBo', $('rmdChiBo').value.trim());
+
+  const j = await (await apiFetch('/reports/members/detail?' + qs.toString())).json();
+  if (!j.ok){ $('rmdOut').innerHTML = '<span class="err">'+(j.error||'Lỗi')+'</span>'; return; }
+
+  let items = j.items || [];
+  if (AUTH_USER?.role === 'user' && AUTH_USER.email){
+    items = items.filter(m => (m.email && m.email.toLowerCase() === AUTH_USER.email.toLowerCase()));
+  }
+  if (!items.length){ $('rmdOut').textContent = 'Không có dữ liệu.'; return; }
+
+  // Cột dùng cho TRANG IN (rút gọn)
+  const HEAD = [
+    "STT","Họ và tên","Ngày sinh","Giới tính","Điện thoại liên hệ",
+    "Ngày vào Đảng","Ngày chính thức","Tuổi Đảng",
+    "Số thẻ Đảng viên","Số CCCD","Ngày cấp CCCD",
+    "Chi bộ","Chức vụ","Đơn vị/ Bộ phận",
+    "Ngày bắt đầu sinh hoạt","Ngày kết thúc sinh hoạt"
+  ];
+
+  const rows = items.map((m,i)=>({
+    "STT": i+1,
+    "Họ và tên": m.hoTen || '',
+    "Ngày sinh": fmtDate(m.ngaySinh),
+    "Giới tính": m.gioiTinh || '',
+    "Điện thoại liên hệ": m.dienThoai || '',
+    "Ngày vào Đảng": fmtDate(m.ngayVaoDang),
+    "Ngày chính thức": fmtDate(m.ngayChinhThuc),
+    "Tuổi Đảng": (m.ngayVaoDang ? Math.max(0, Math.floor((Date.now()-new Date(m.ngayVaoDang))/31557600000)) : ""),
+    "Số thẻ Đảng viên": m.soTheDang || '',
+    "Số CCCD": m.soCCCD || '',
+    "Ngày cấp CCCD": fmtDate(m.ngayCapCCCD),
+    "Chi bộ": m.chiBo || '',
+    "Chức vụ": m.dangUyCapUy || '',
+    "Đơn vị/ Bộ phận": m.donViBoPhan || '',
+    "Ngày bắt đầu sinh hoạt": fmtDate(m.ngayBatDauSH),
+    "Ngày kết thúc sinh hoạt": fmtDate(m.ngayKetThucSH)
+  }));
+
+  const tableOnly = `
+    <h3>Báo cáo chi tiết Đảng viên</h3>
+    <div style="margin:6px 0">
+      Từ ngày: ${$('rmdFrom').value||'-'} – đến ngày: ${$('rmdTo').value||'-'} • Nhóm: ${$('rmdChiBo').value||'Tất cả'}
+    </div>
+    <table>
+      <thead><tr>${HEAD.map(h=>`<th>${h}</th>`).join('')}</tr></thead>
+      <tbody>
+        ${rows.map(r=>`<tr>${HEAD.map(h=>`<td>${r[h]??''}</td>`).join('')}</tr>`).join('')}
+      </tbody>
+    </table>`;
+
+  $('rmdOut').innerHTML = tableOnly + `
+    <div style="margin-top:8px;display:flex;gap:8px">
+      <button id="rmdPrint" class="btn primary">In</button>
+      <a class="btn" href="/reports/members/detail.xlsx?${qs.toString()}">Tải Excel</a>
+    </div>`;
+
+  // In (ngang nếu tick “In ngang?”)
+  $('rmdPrint').onclick = ()=> printHTML("Báo cáo chi tiết Đảng viên", tableOnly, $('rmdLandscape').checked);
+});
+
+  $('btnRptSum').onclick = async ()=>{
+    const qs=new URLSearchParams();
+    if($('rmsFrom').value)qs.set('from',$('rmsFrom').value);
+    if($('rmsTo').value)qs.set('to',$('rmsTo').value);
+    const j=await (await apiFetch('/reports/members/summary?'+qs.toString())).json();
+    if(!j.ok||!j.items.length){$('rmsOut').textContent='Không có dữ liệu.';return;}
+    const rows=j.items.map(x=>({ "Chi bộ":x.chiBo||'(Không khai báo)', "Số lượng":x.soLuong }));
+    const head=Object.keys(rows[0]);
+    const html = `
+      <h3>Báo cáo tổng hợp Đảng viên</h3>
+      <div style="margin:6px 0">Từ ngày: ${$('rmsFrom').value||'-'} – đến ngày: ${$('rmsTo').value||'-'}</div>
+      <table><thead><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>
+        ${rows.map(r=>`<tr>${head.map(h=>`<td>${r[h]}</td>`).join('')}</tr>`).join('')}
+      </tbody></table>`;
+    $('rmsOut').innerHTML = html + `<div style="margin-top:8px"><button id="rmsPrint" class="btn primary">In</button></div>`;
+    $('rmsPrint').onclick = ()=> printHTML("Báo cáo tổng hợp Đảng viên", html, $('rmsLandscape').checked);
+  };
+
+  $('rptDocs').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+
+  const qs = new URLSearchParams();
+  if ($('rdFrom').value)  qs.set('from',  $('rdFrom').value);
+  if ($('rdTo').value)    qs.set('to',    $('rdTo').value);
+  if ($('rdLevel').value) qs.set('level', $('rdLevel').value);
+  // thêm phạm vi dữ liệu chia sẻ
+  qs.set('scope','shared');
+
+  const j = await (await apiFetch('/reports/docs/deployed?' + qs.toString())).json();
+  if (!j.ok){ $('rdOut').innerHTML = `<span class="err">${j.error||'Lỗi'}</span>`; return; }
+
+  let items = j.items || [];
+  const S = computeUserScope();
+  if (S.role === 'user' && !S.manageAll){
+    const allowUnits = S.units.map(s=>String(s).toLowerCase());
+    items = items.filter(d => allowUnits.length===0 ? true : allowUnits.includes(String(d.donVi||'').toLowerCase()));
+  }
+  if (!items.length){ $('rdOut').textContent = 'Không có dữ liệu.'; return; }
+
+  const head = ["Tên","Trích yếu","Số hiệu","Cấp","Mức độ","Người gửi","Ngày","DL"];
+  const rows = items.map(d=>({
+  "Tên": `<a target="_blank" rel="noopener" href="${docPreviewLink(d)}">${esc(d.name)}</a>`,
+  "Trích yếu": esc(d.trichYeu),
+  "Số hiệu": esc(d.soHieu),
+  "Cấp": esc(d.donVi),
+  "Mức độ": esc(d.mucDo),
+  "Người gửi": esc(d.nguoiGui),
+  "Ngày": (d.createdAt || d.modifiedTime || '').replace('T',' ').replace('Z',''),
+  "DL": d.id ? `<a class="btn" href="/documents/${d.id}/download">Tải file</a>` : ''
+}));
+
+
+  const table = `
+    <table>
+      <thead><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr></thead>
+      <tbody>${rows.map(r=>`<tr>${head.map(h=>`<td>${r[h]}</td>`).join('')}</tr>`).join('')}</tbody>
+    </table>`;
+
+  const excelHref = '/reports/docs/deployed.xlsx?' + qs.toString();
+
+  $('rdOut').innerHTML = `
+    <div class="right" style="margin-bottom:8px;gap:8px">
+      <label>In ngang? <input type="checkbox" id="rdLandscapeNow" ${$('rdLandscape').checked?'checked':''}></label>
+      <a class="btn" href="${excelHref}">Tải Excel</a>
+      <button id="rdPrint" class="btn primary">In</button>
+    </div>${table}`;
+
+  $('rdPrint').onclick = ()=>{
+    printHTML("Báo cáo văn bản đã triển khai", table, $('rdLandscapeNow').checked);
+  };
+});
+
+
+ // ====== [REGION: Admin Users] ======
+let __USR_SAVING = false;
+// Helpers cho đa chọn
+function getMultiSelectValues(sel){
+  if (!sel) return [];
+  return [...sel.options].filter(o=>o.selected && !o.hidden).map(o=>o.value || o.text);
+}
+function setMultiSelectValues(sel, values){
+  if (!sel) return;
+  const want = new Set((values||[]).map(v=>String(v)));
+  [...sel.options].forEach(o => { o.selected = want.has(String(o.value||o.text)); });
+}
+
+// Thoát chế độ sửa
+function exitUserEditMode(){
+  __USR_MODE = 'create';
+  __USR_EDIT_EMAIL = null;
+
+  if ($('uMode')) $('uMode').value = 'create';
+  if ($('uSubmitBtn')) $('uSubmitBtn').textContent = 'Thêm';
+  if ($('uSubmitBtn')) { $('uSubmitBtn').disabled = false; $('uSubmitBtn').type = 'submit'; }
+
+  if ($('uCancelEdit')) $('uCancelEdit').classList.add('hide');
+
+  // mở khoá email để thêm mới
+  if ($('uEmail')) { $('uEmail').disabled = false; $('uEmail').value = ''; }
+  if ($('uName'))  $('uName').value  = '';
+  if ($('uParty')) $('uParty').value = '';
+  if ($('uRole'))  $('uRole').value  = 'user';
+  if ($('uPass'))  $('uPass').value  = '';
+
+  // reset các box theo role
+  updateRoleBoxes();
+
+  // clear phạm vi
+  if ($('uUnits'))     setMultiSelectValues($('uUnits'), []);
+  if ($('uChiBo'))     setMultiSelectValues($('uChiBo'), []);
+  if ($('uUserUnit'))  $('uUserUnit').value = '';
+  if ($('uUserChiBo')) $('uUserChiBo').value = '';
+
+  if ($('uMsg')) $('uMsg').textContent = '';
+}
+
+// Vào chế độ sửa
+function enterUserEditMode(u){
+  if (!u || !u.email) return;
+
+  __USR_MODE = 'edit';
+  __USR_EDIT_EMAIL = u.email;
+
+  if ($('uMode')) $('uMode').value = 'edit';
+  if ($('uSubmitBtn')) $('uSubmitBtn').textContent = 'Cập nhật';
+  if ($('uSubmitBtn')) { $('uSubmitBtn').disabled = false; $('uSubmitBtn').type = 'submit'; }
+  if ($('uCancelEdit')) $('uCancelEdit').classList.remove('hide');
+
+  // điền dữ liệu
+  if ($('uEmail')) { $('uEmail').value = u.email; $('uEmail').disabled = true; } // email là khóa, khoá lại khi sửa
+  if ($('uName'))  $('uName').value  = u.fullName || '';
+  if ($('uParty')) $('uParty').value = u.partyId  || '';
+
+  if ($('uRole'))  $('uRole').value  = u.role || 'user';
+  updateRoleBoxes(); // hiển thị đúng các box theo vai trò
+
+  // Phạm vi quản lý
+  const isSuper = !!u.manageAll;
+
+  // Chuẩn hoá danh sách đơn vị quản lý về ID
+  const _unitsRaw = Array.isArray(u.manageUnits) ? u.manageUnits : [];
+  const _unitsIds = _unitsRaw.map(x => DONVI_LABEL2ID[x] || x); // nếu backend trả label thì đổi sang id
+  if ($('uUnits')) setMultiSelectValues($('uUnits'), isSuper ? [] : _unitsIds);
+
+  // User thuộc đơn vị: đổi label -> id nếu cần
+  const _userUnitId = DONVI_LABEL2ID[u.userUnit] || u.userUnit || '';
+  if ($('uUserUnit')) $('uUserUnit').value = _userUnitId;
+
+  if ($('uUserChiBo')) $('uUserChiBo').value = u.userChiBo || '';
+
+  // Không tự động điền mật khẩu khi sửa
+  if ($('uPass')) $('uPass').value = '';
+
+  // cuộn tới form
+  try{ window.scrollTo({ top: $('usrCreate').offsetTop-80, behavior: 'smooth' }); }catch{}
+}
+
+function updateRoleBoxes(){
+  const role = $('uRole')?.value;
+  if (!role) return;
+  if ($('uUnitsBox'))     $('uUnitsBox').style.display     = (role==='manager_unit')  ? '' : 'none';
+  if ($('uChiBoBox'))     $('uChiBoBox').style.display     = (role==='manager_chibo') ? '' : 'none';
+  if ($('uUserUnitBox'))  $('uUserUnitBox').style.display  = (role==='user')          ? '' : 'none';
+  if ($('uUserChiBoBox')) $('uUserChiBoBox').style.display = (role==='user')          ? '' : 'none';
+
+  // dọn lựa chọn khi đổi role (không bắt buộc nhưng an toàn)
+  if (role!=='manager_unit'  && $('uUnits'))    [...$('uUnits').options].forEach(o=>o.selected=false);
+  if (role!=='manager_chibo' && $('uChiBo'))    [...$('uChiBo').options].forEach(o=>o.selected=false);
+  if (role!=='user' && $('uUserUnit'))  $('uUserUnit').value='';
+  if (role!=='user' && $('uUserChiBo')) $('uUserChiBo').value='';
+}
+$('uRole')?.addEventListener('change', updateRoleBoxes);
+document.addEventListener('DOMContentLoaded', updateRoleBoxes);
+
+$('uCancelEdit')?.addEventListener('click', (e)=>{
+  e.preventDefault();
+  exitUserEditMode();
+});
+
+let ADMIN_USERS = [];
+let ADMIN_USERS_FILTER = '';
+
+function matchesQuery(u, q){
+  if (!q) return true;
+  const hay = ((u.fullName||'') + ' ' + (u.email||'')).toLowerCase();
+  const tokens = q.toLowerCase().trim().split(/\s+/).filter(Boolean);
+  return tokens.every(t => hay.includes(t));
+}
+
+function renderUsersTable(){
+  const isAdmin = AUTH_USER && AUTH_USER.role === 'admin';
+  const filtered = ADMIN_USERS.filter(u => matchesQuery(u, ADMIN_USERS_FILTER));
+
+  if (!filtered.length){
+    $('usrList').textContent = 'Không có dữ liệu.';
+    return;
+  }
+
+  const rows = filtered.map(u => {
+  // chuẩn hoá để hiển thị: nếu nhận ID thì đổi sang label
+  const unitList = Array.isArray(u.manageUnits) ? u.manageUnits : [];
+  const unitLabels = unitList.map(x => DONVI_ID2LABEL[x] || x);
+
+  const userUnitLabel = DONVI_ID2LABEL[u.userUnit] || u.userUnit || '';
+
+  const managedTxt = (u.manageAll)
+    ? 'Toàn hệ thống'
+    : [
+        unitLabels.length ? ('Đơn vị: ' + unitLabels.join(', ')) : null,
+        (u.manageChiBo && u.manageChiBo.length) ? ('Chi bộ: ' + u.manageChiBo.join(', ')) : null,
+        (userUnitLabel) ? ('User thuộc đơn vị: ' + userUnitLabel) : null,
+        (u.userChiBo) ? ('User thuộc chi bộ: ' + u.userChiBo) : null
+      ].filter(Boolean).join(' • ');
+
+    const actions = [
+    `<button class="btn link" data-edit-user="${encodeURIComponent(u.email)}">Sửa</button>`,
+    isAdmin ? `<button class="btn" data-delete-user="${encodeURIComponent(u.email)}">Xóa</button>` : '',
+    isAdmin ? `<button class="btn" data-reset="${encodeURIComponent(u.email)}">Đặt lại MK</button>` : ''
+  ].filter(Boolean).join(' ');
+
+  return `
+    <tr>
+      <td>${u.email}</td>
+      <td>${u.fullName || ''}</td>
+      <td>${u.partyId || ''}</td>
+      <td>${u.role}</td>
+      <td>${managedTxt||''}</td>
+      <td>${u.active ? '<span class="pill">active</span>' : '<span class="err">disabled</span>'}</td>
+      <td>${actions}</td>
+    </tr>
+  `;
+}).join('');
+
+  $('usrList').innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>Email</th><th>Họ tên</th><th>Đơn vị/Bộ phận</th><th>Vai trò</th><th>Phạm vi quản lý</th><th>Trạng thái</th><th>Thao tác</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `;
+
+  document.querySelectorAll('[data-reset]').forEach(btn => {
+    btn.onclick = async () => {
+      const email = decodeURIComponent(btn.getAttribute('data-reset'));
+      const newPassword = prompt('Nhập mật khẩu mới cho: ' + email);
+      if (!newPassword) return;
+      const old = btn.textContent;
+      btn.disabled = true; btn.textContent = 'Đang đặt...';
+      const r = await apiFetch('/admin/users/reset', {
+        method: 'POST',
+        body: JSON.stringify({ email, newPassword })
+      }).then(r=>r.json()).catch(()=>({}));
+      btn.disabled = false; btn.textContent = old;
+      if (!r.ok) alert(r.error || 'Lỗi'); else alert('Đã đặt lại mật khẩu cho ' + email);
+    };
+  });
+
+  document.querySelectorAll('[data-edit-user]').forEach(btn => {
+    btn.onclick = () => {
+      const email = decodeURIComponent(btn.getAttribute('data-edit-user'));
+      const u = ADMIN_USERS.find(x => x.email === email);
+      if (!u) return;
+      enterUserEditMode(u);
+    };
+  });
+
+  document.querySelectorAll('[data-delete-user]').forEach(btn => {
+    btn.onclick = async () => {
+      const email = decodeURIComponent(btn.getAttribute('data-delete-user'));
+      if (!confirm('Xóa người dùng: ' + email + ' ?')) return;
+      const r = await apiFetch('/admin/users/'+encodeURIComponent(email), { method:'DELETE' })
+        .then(r=>r.json()).catch(()=>({}));
+      if (!r.ok) alert(r.error || 'Lỗi'); else { ADMIN_USERS = ADMIN_USERS.filter(u => u.email !== email); renderUsersTable(); }
+    };
+  });
+}
+
+let __USR_MODE = 'create';
+let __USR_EDIT_EMAIL = null;
+async function loadUsers(){
+  const j = await (await apiFetch('/admin/users')).json();
+  if (!j.ok){
+    $('usrList').innerHTML = '<span class="err">Cần đăng nhập admin</span>';
+    return;
+  }
+  ADMIN_USERS = j.items || [];
+  renderUsersTable();
+
+  const filterInput = $('usrSearch');
+  if (filterInput){
+    const doFilter = ()=>{
+      ADMIN_USERS_FILTER = filterInput.value.trim();
+      renderUsersTable();
+    };
+    filterInput.oninput = doFilter; doFilter();
+  }
+}
+
+// Gọi lưu User: thử PUT /admin/users/:email -> POST /admin/users/update -> POST /admin/users/:email -> POST /admin/users
+async function saveUser(body, editEmail){
+  // helper: parse JSON an toàn; nếu không có JSON vẫn coi theo HTTP status
+  const okify = async (res) => {
+    let j = null;
+    try { j = await res.json(); } catch {}
+    // nếu server không trả {ok:true} nhưng HTTP 2xx → vẫn coi là ok
+    if (res.ok && (!j || typeof j.ok === 'undefined')) return { ok:true, ...j };
+    return j || { ok: res.ok };
+  };
+
+  // Thử 1: PUT /admin/users/:email
+  if (editEmail){
+    try{
+      const r1 = await apiFetch('/admin/users/'+encodeURIComponent(editEmail), {
+        method:'PUT', body: JSON.stringify(body)
+      });
+      const j1 = await okify(r1); if (j1 && j1.ok) return j1;
+    }catch{}
+  }
+
+  // Thử 2: POST /admin/users/update
+  try{
+    const r2 = await apiFetch('/admin/users/update', { method:'POST', body: JSON.stringify(body) });
+    const j2 = await okify(r2); if (j2 && j2.ok) return j2;
+  }catch{}
+
+  // Thử 3: POST /admin/users/:email
+  if (editEmail){
+    try{
+      const r3 = await apiFetch('/admin/users/'+encodeURIComponent(editEmail), {
+        method:'POST', body: JSON.stringify(body)
+      });
+      const j3 = await okify(r3); if (j3 && j3.ok) return j3;
+    }catch{}
+  }
+
+  // Thử 4 (thêm mới): POST /admin/users
+  try{
+    const r4 = await apiFetch('/admin/users', { method:'POST', body: JSON.stringify(body) });
+    const j4 = await okify(r4); if (j4 && j4.ok) return j4;
+  }catch{}
+
+  return { ok:false, error:'Không lưu được (mọi endpoint đều không chấp nhận).' };
+}
+
+// Submit form thêm/cập nhật user (gửi ID + label, gọi saveUser, báo thành công, quay #home)
+$('usrCreate')?.addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  if (__USR_SAVING) return;
+
+  const btn    = $('uSubmitBtn');
+  const isEdit = (__USR_MODE === 'edit' && !!__USR_EDIT_EMAIL);
+  const email  = $('uEmail').value.trim();
+  if (!email){
+    $('uMsg').innerHTML = '<span class="err">Thiếu email</span>';
+    return;
+  }
+
+  const role = $('uRole').value;
+
+  // Lấy danh sách đơn vị quản lý theo ID (value option = id)
+  const unitIds   = getMultiSelectValues($('uUnits'));
+  const unitNames = unitIds.map(id => DONVI_ID2LABEL[id] || id); // đính kèm label cho backend cũ
+
+  // User thuộc đơn vị: value là ID
+  const userUnitId   = $('uUserUnit')?.value || '';
+  const userUnitName = userUnitId ? (DONVI_ID2LABEL[userUnitId] || userUnitId) : '';
+
+  const body = {
+    email,
+    fullName: $('uName').value.trim(),
+    partyId:  $('uParty').value.trim(),
+    role,
+    // Nếu là admin/manager_all thì bật manageAll để backend hiểu là siêu quyền
+    manageAll: (role === 'admin' || role === 'manager_all') ? true : false,
+
+    // Gửi song song để tương thích backend: ID + label
+    manageUnitsIds: unitIds,
+    manageUnits:    unitNames,
+
+    userUnitId,
+    userUnit:       userUnitName,
+
+    // Chi bộ (chưa có ID) → gửi label
+    manageChiBo: getMultiSelectValues($('uChiBo')),
+    userChiBo:   $('uUserChiBo')?.value || ''
+  };
+  const pass = $('uPass').value;
+  if (pass) body.newPassword = pass;
+
+  $('uMsg').textContent = isEdit ? 'Đang cập nhật...' : 'Đang thêm...';
+  __USR_SAVING = true;
+  if (btn){ btn.disabled = true; btn.textContent = isEdit ? 'Đang cập nhật...' : 'Đang thêm...'; }
+
+  try{
+    const j = await saveUser(body, isEdit ? __USR_EDIT_EMAIL : null);
+
+    if (!j || !j.ok){
+      $('uMsg').innerHTML = '<span class="err">'+(j?.error || 'Lỗi lưu người dùng')+'</span>';
+      return;
+    }
+
+    // Thành công: báo, làm tươi, quay về Trang chủ
+   $('uMsg').innerHTML = '<span class="ok">Cập nhật thành công</span>';
+
+// >>> BỔ SUNG GỌI SYNC <<<
+try{
+  const syncEmail = body.email;
+  await apiFetch('/admin/users/sync-shares', {
+    method: 'POST',
+    body: JSON.stringify({
+      email: syncEmail,
+      rebuildScopes: true,
+      regrantDocuments: true
+    })
+  }).then(r=>r.json()).catch(()=>({}));
+}catch(_){}
+    await loadUsers();
+    exitUserEditMode();
+
+    // Quay về Trang chủ và nạp lại Home để người dùng thấy ngay giao diện chính
+    location.hash = '#home';
+    try{ show('home'); }catch{}
+    try{ loadHome(); }catch{}
+
+  }catch(err){
+    $('uMsg').innerHTML = '<span class="err">Không kết nối được máy chủ</span>';
+  }finally{
+    __USR_SAVING = false;
+    if (btn){
+      btn.disabled = false;
+      btn.textContent = isEdit ? 'Cập nhật' : 'Thêm';
+    }
+  }
+});
+
+  document.addEventListener('DOMContentLoaded', ()=>{
+    const btnOpen = $('btnUsrOpenImp');
+    if (btnOpen) btnOpen.onclick = ()=> $('usrImpBox').classList.toggle('hide');
+
+    let lastUserImpToken = null;
+    $('usrImpForm')?.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const f = $('usrImpFile').files[0];
+      if (!f) { alert('Chọn file .xlsx'); return; }
+      const fd = new FormData(); fd.append('file', f);
+      $('usrImpPreview').textContent = 'Đang kiểm tra...';
+
+      const j = await (await apiFetch('/users/import/preview', { method:'POST', body: fd })).json().catch(()=>({}));
+      if (!j.ok) { $('usrImpPreview').innerHTML = `<span class="err">${j.error||'Lỗi'}</span>`; return; }
+
+      lastUserImpToken = j.token;
+      const errLink = j.invalid ? `<a class="btn" href="/users/import/errors/${j.token}">Tải báo cáo lỗi</a>` : '';
+      const confirmBtn = j.valid ? `<button id="btnUsrImpConfirm" class="btn primary">Xác nhận nhập (${j.valid})</button>` : '';
+
+      $('usrImpPreview').innerHTML = `
+        <div><b>Tổng:</b> ${j.total} • <span class="ok">Hợp lệ:</span> ${j.valid} • <span class="err">Lỗi:</span> ${j.invalid}</div>
+        <div style="margin-top:8px;display:flex;gap:8px;align-items:center">${errLink} ${confirmBtn}</div>
+      `;
+
+      if (j.valid){
+        document.getElementById('btnUsrImpConfirm').onclick = async ()=>{
+          if (!lastUserImpToken) return;
+          $('usrImpPreview').innerHTML += `<div class="muted" id="usrImpDoing">Đang ghi dữ liệu...</div>`;
+          const rsp = await (await apiFetch('/users/import/confirm', {
+  method:'POST',
+  body: JSON.stringify({ token: lastUserImpToken })
+})).json().catch(()=>({}));
+
+          if (rsp.ok){
+            $('usrImpDoing').innerHTML = `<span class="ok">Đã nhập ${rsp.total} (mới: ${rsp.inserted}, cập nhật: ${rsp.updated}).</span>`;
+            loadUsers();
+          } else {
+            $('usrImpDoing').innerHTML = `<span class="err">${rsp.error||'Lỗi'}</span>`;
+          }
+        };
+      }
+    });
+  });
+
+  // ====== [REGION: Đổi mật khẩu cá nhân] ======
+  $('mePwd').addEventListener('submit', async(e)=>{
+    e.preventDefault();
+    const body={ oldPassword:$('meOld').value, newPassword:$('meNew').value };
+    $('meMsg').textContent='Đang đổi...';
+    try{
+      const res = await apiFetch('/me/change-password',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+      if (res.status===404){
+        $('meMsg').innerHTML='<span class="err">Chức năng chưa bật trên server. Vui lòng liên hệ Admin.</span>';
+        return;
+      }
+      const j=await res.json();
+      $('meMsg').innerHTML=j.ok?'<span class="ok">OK.</span>':'<span class="err">'+(j.error||'Lỗi')+'</span>';
+    }catch{
+      $('meMsg').innerHTML='<span class="err">Không kết nối được máy chủ</span>';
+    }
+  });
+
+ // ========= [REGION: Hardened login handler độc lập] =========
+
+(function(){
+  const $id = id => document.getElementById(id);
+  const lf = $id('loginForm');
+  if (!lf) return;
+
+  lf.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    if (window.__LG_SUBMIT_ONCE) return;
+    window.__LG_SUBMIT_ONCE = true;
+
+    const email = ($id('lgEmail')?.value || '').trim();
+    const pass  = $id('lgPass')?.value || '';
+
+    if (!email || !pass){
+      if ($id('lgMsg')) $id('lgMsg').innerHTML = '<span class="err">Vui lòng nhập email và mật khẩu</span>';
+      window.__LG_SUBMIT_ONCE = false;
+      return;
+    }
+
+    if ($id('lgBtn')) $id('lgBtn').disabled = true;
+    if ($id('lgMsg')) $id('lgMsg').textContent = 'Đang đăng nhập...';
+
+    try{
+      const r = await apiFetch('/auth/login', {
+        method:'POST',
+        body: JSON.stringify({ email, password: pass })
+      });
+      const j = await r.json();
+
+      if (j.ok){
+        if ($id('lgRememberUser')?.checked) localStorage.setItem('lg_u', email); else localStorage.removeItem('lg_u');
+        if ($id('lgRememberPass')?.checked) localStorage.setItem('lg_p', pass);  else localStorage.removeItem('lg_p');
+        location.reload();
+      } else {
+        if ($id('lgMsg')) $id('lgMsg').innerHTML = '<span class="err">'+(j.error || 'Sai thông tin đăng nhập')+'</span>';
+        window.__LG_SUBMIT_ONCE = false;
+      }
+    }catch(err){
+      if ($id('lgMsg')) $id('lgMsg').innerHTML = '<span class="err">Không kết nối được máy chủ</span>';
+      window.__LG_SUBMIT_ONCE = false;
+    }finally{
+      if ($id('lgBtn')) $id('lgBtn').disabled = false;
+    }
+  });
+})();
+
+// ========= /[REGION: Hardened login handler độc lập] =========
+
+
+// ========= [ADD] Tự đồng bộ dữ liệu khi quyền thay đổi =========
+
+document.addEventListener('auth:changed', async () => {
+  try{
+    if (typeof loadHome === 'function') loadHome();
+    if (typeof enforcePersonalCreateLimit === 'function') enforcePersonalCreateLimit();
+    if (typeof loadMembers === 'function') loadMembers();
+  }catch(e){
+    console.warn('auth:changed handler error:', e);
+  }
+});
+
+// Khởi tạo lần đầu để lấy quyền & hiển thị UI (an toàn chống gọi lặp)
+document.addEventListener('DOMContentLoaded', () => {
+  if (typeof refreshAuthUI === 'function' && !window.__authInitCalled){
+    window.__authInitCalled = true;
+    refreshAuthUI();
+  }
+});
+
+// ========= /[ADD] Tự đồng bộ dữ liệu khi quyền thay đổi =========
+
+
+// [PATCH-UI-ONE-TIME-MEMBER] — DÁN TRƯỚC
+
+/** ====== Tạo hồ sơ Đảng viên: One-time per email (UI guard) ======
+ *  - Không thay thế code cũ; chỉ bổ sung để tăng UX/độ an toàn phía client
+ *  - Quy tắc chặn tuyệt đối vẫn cần thực thi ở server (server.js)
+ **/
+
+// Thêm banner hướng dẫn (nếu chưa có)
+function insertOneTimeNotice(){
+  const form = document.getElementById('memCreate');
+  if (!form) return;
+  if (document.getElementById('oneTimeNotice')) return;
+
+  const note = document.createElement('div');
+  note.id = 'oneTimeNotice';
+  note.className = 'card';
+  note.style.margin = '0 0 10px';
+  note.innerHTML = `
+    <div class="muted">
+      <b>Lưu ý:</b> Mỗi cán bộ/nhân viên chỉ được <b>tạo hồ sơ Đảng viên 1 lần</b> ứng với <b>email đăng nhập</b>.
+      Sau khi tạo, bạn có thể quay lại mục <i>Chi tiết Đảng viên</i> để <b>sửa/cập nhật</b> thông tin của chính mình.
+    </div>`;
+  const fs = document.querySelector('#view-dv-taomoi fieldset');
+  if (fs) fs.insertBefore(note, fs.firstChild);
+}
+
+// Với User thường: tự điền & khoá email = email đang đăng nhập
+function prepareMemberCreateForm(){
+  const emailInput = document.getElementById('mEmail');
+  if (!emailInput) return;
+
+  // Nếu là User → khóa email của chính mình
+  if (AUTH_USER?.role === 'user' && AUTH_USER?.email){
+    emailInput.value = AUTH_USER.email;
+    emailInput.readOnly = true;
+    emailInput.title = 'Email được tự điền theo tài khoản đăng nhập và không thể thay đổi (mỗi người chỉ tạo 1 lần).';
+  }else{
+    // Manager/Admin vẫn chỉnh được (tạo thay cho người khác)
+    emailInput.readOnly = false;
+    emailInput.title = '';
+  }
+
+  insertOneTimeNotice();
+}
+
+// Guard chạy trước submit hiện có của bạn để kiểm tra email đúng “chính chủ”
+(function attachPreSubmitGuard(){
+  const form = document.getElementById('memCreate');
+  if (!form) return;
+
+  // capture:true để guard chạy TRƯỚC handler submit gốc của bạn
+  form.addEventListener('submit', function(e){
+    try{
+      // Chỉ ràng buộc với role user
+      if (AUTH_USER?.role === 'user' && AUTH_USER?.email){
+        const emailInput = document.getElementById('mEmail');
+        const msg = document.getElementById('memMsg');
+        const my = String(AUTH_USER.email).trim().toLowerCase();
+        const val = String(emailInput.value||'').trim().toLowerCase();
+
+        if (!val || val !== my){
+          e.preventDefault(); e.stopImmediatePropagation();
+          if (msg) msg.innerHTML =
+            '<span class="err">Bạn chỉ được tạo hồ sơ cho chính email của mình: '
+            + AUTH_USER.email + '.</span>';
+          // đồng bộ lại giá trị
+          if (emailInput){ emailInput.value = AUTH_USER.email; }
+          return false;
+        }
+      }
+    }catch(_){}
+  }, true);
+})();
+
+// Kích hoạt mỗi khi đổi vai trò/đăng nhập/đổi tab
+(function attachLifecycleHooks(){
+  // 1) Khi đổi hash tới trang tạo mới
+  window.addEventListener('hashchange', ()=>{
+    if (location.hash === '#dv-taomoi') {
+      try{ prepareMemberCreateForm(); }catch(_){}
+    }
+  });
+
+  // 2) Lúc DOM ready
+  document.addEventListener('DOMContentLoaded', ()=>{
+    if (location.hash === '#dv-taomoi') {
+      try{ prepareMemberCreateForm(); }catch(_){}
+    }
+  });
+
+  // 3) Hook nhẹ vào applyRoleUI nếu tồn tại (không sửa mã gốc)
+  try{
+    if (typeof applyRoleUI === 'function'){
+      const __oldApplyRoleUI = applyRoleUI;
+      window.applyRoleUI = function(){
+        const ret = __oldApplyRoleUI.apply(this, arguments);
+        try{ prepareMemberCreateForm(); }catch(_){}
+        return ret;
+      };
+    }
+  }catch(_){}
+})();
+</script>
+
+<script>
+
+// Đăng ký Service Worker (PWA) + tự reload khi có phiên bản SW mới
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', async () => {
+    try {
+      const reg = await navigator.serviceWorker.register('/sw.js');
+
+      // Khi có SW mới (sw.js đổi version), tự reload để nhận asset mới
+      reg.addEventListener?.('updatefound', () => {
+        const sw = reg.installing;
+        if (!sw) return;
+        sw.addEventListener('statechange', () => {
+          // 'installed' + đã có controller => đang cập nhật từ phiên bản cũ
+          if (sw.state === 'installed' && navigator.serviceWorker.controller) {
+            location.reload();
+          }
+        });
+      });
+    } catch (err) {
+      console.warn('SW register fail:', err);
+    }
+  });
+}
+</script>
+<!-- /[PATCH-UI-ONE-TIME-MEMBER] --> <!-- (giữ nguyên vì đây KHÔNG nằm trong <script>) -->
+
+</body>
+</html>
+

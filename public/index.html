@@ -5,12 +5,7 @@
   <title>Công ty TNHH MTV Petrolimex Gia Lai – Văn bản • Đảng viên • Báo cáo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
 
-  <!-- moved vào head -->
-  <link rel="manifest" href="/manifest.webmanifest">
-  <meta name="theme-color" content="#111111">
-  <link rel="icon" href="/icons/icon-192.png">
-
-
+ 
 <!-- =========================
   [STYLE] KHỐI GIAO DIỆN CHUNG
   ========================== -->
@@ -2420,18 +2415,10 @@ if ('serviceWorker' in navigator) {
 </script>
 <!-- /[PATCH-UI-ONE-TIME-MEMBER] --> <!-- (giữ nguyên vì đây KHÔNG nằm trong <script>) -->
 
-  <script>
-  window.addEventListener('load', () => {
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js')
-        .catch(err => console.error('SW register failed:', err));
-    }
-  });
-</script>
-
-
+ 
 </body>
 </html>
+
 
 
 

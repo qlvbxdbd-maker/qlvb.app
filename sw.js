@@ -1,6 +1,6 @@
 /* Service Worker cho PartyDocs */
 const VERSION = 'pd-v1.0.0';
-const STATIC_PRECACHE = ['/', '/offline.html', '/manifest.webmanifest'];
+const STATIC_PRECACHE = ['/', '/offline.html', '/manifest.webmanifest', '/icons/icon-192.png', '/icons/icon-512.png'];
 const STATIC_CACHE = `${VERSION}-static`;
 const RUNTIME_CACHE = `${VERSION}-runtime`;
 const DOCS_CACHE = `${VERSION}-docs`;
@@ -13,7 +13,11 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil((async () => {
     const keys = await caches.keys();
-    await Promise.all(keys.filter(k => ![STATIC_CACHE, RUNTIME_CACHE, DOCS_CACHE].includes(k)).map(k => caches.delete(k)));
+    await Promise.all(
+      keys
+        .filter(k => ![STATIC_CACHE, RUNTIME_CACHE, DOCS_CACHE].includes(k))
+        .map(k => caches.delete(k))
+    );
     await self.clients.claim();
   })());
 });
@@ -26,11 +30,13 @@ function isRuntimeAPI(url) {
     url.pathname === '/catalogs' ||
     url.pathname === '/personal/search' ||
     url.pathname === '/documents/search' ||
+    url.pathname === '/documents/latest' || // bổ sung để trang Home có thể hiển thị offline
     url.pathname.startsWith('/reports/')
   );
 }
 function isViewDoc(url) {
-  return url.pathname.endsWith('/download') && url.searchParams.get('inline') === '1';
+  // Bắt các file tải/xem trực tiếp từ /documents/:id/download (dù có query hay không)
+  return url.pathname.endsWith('/download');
 }
 
 self.addEventListener('fetch', (event) => {
@@ -63,12 +69,19 @@ self.addEventListener('fetch', (event) => {
         if (res.ok) cache.put(req, res.clone());
         return res;
       }).catch(() => null);
-      return cached || fetchPromise || new Response(JSON.stringify({ ok:false, offline:true, items:[] }), { headers: { 'Content-Type': 'application/json' }, status: 200 });
+      return (
+        cached ||
+        fetchPromise ||
+        new Response(
+          JSON.stringify({ ok: false, offline: true, items: [] }),
+          { headers: { 'Content-Type': 'application/json' }, status: 200 }
+        )
+      );
     })());
     return;
   }
 
-  // File xem trực tiếp (PDF/ảnh/txt): cache-first
+  // File xem trực tiếp (PDF/ảnh/txt) & asset tĩnh: cache-first
   if (isViewDoc(url) || req.destination === 'image' || req.destination === 'font') {
     event.respondWith((async () => {
       const cache = await caches.open(DOCS_CACHE);

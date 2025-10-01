@@ -45,6 +45,13 @@ app.use(compression());
 app.use(express.json({ limit: process.env.JSON_LIMIT || '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
+// NÊN đặt ngay sau app.use(express.urlencoded(...))
+const cors = require('cors');
+const FRONTEND = process.env.FRONTEND_ORIGIN; // ví dụ: https://docs.example.vn
+if (FRONTEND) {
+  app.use(cors({ origin: FRONTEND, credentials: true }));
+}
+
 // Health check cho Render (trả 200 nhanh gọn)
 app.get('/healthz', (req, res) => res.status(200).send('OK'));
 
@@ -55,6 +62,10 @@ app.use(express.static(path.join(__dirname, 'public'), {
     const base = path.basename(filePath);
     if (['sw.js','manifest.webmanifest','offline.html'].includes(base)) {
       res.setHeader('Cache-Control', 'no-cache');
+    }
+    // mọi file .html đều no-cache
+    if (filePath.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     }
     if (/\.[0-9a-f]{8,}\./i.test(base)) {
       res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
@@ -2043,5 +2054,6 @@ app.listen(PORT, HOST, () => {
   const printableHost = (HOST === '0.0.0.0' || HOST === '::') ? 'localhost' : HOST;
   console.log(`Server listening at http://${printableHost}:${PORT}`);
 });
+
 
 

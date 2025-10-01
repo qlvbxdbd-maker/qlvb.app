@@ -9,6 +9,8 @@ const fs = require('fs');
 const express = require('express');
 const multer = require('multer');
 const compression = require('compression');
+const cors = require('cors');
+
 
 const session = require('express-session');
 const bcrypt = require('bcryptjs');
@@ -40,6 +42,11 @@ function parseArrayOrCSV(s) {
 const app = express();
 const isProd = process.env.NODE_ENV === 'production';
 app.set('trust proxy', 1);
+
+app.use(cors({
+  origin: process.env.CORS_ORIGIN || true, // cùng domain thì true là đủ
+  credentials: true                        // nếu dùng cookie session
+}));
 
 app.use(compression());
 app.use(express.json({ limit: process.env.JSON_LIMIT || '10mb' }));
@@ -2054,6 +2061,7 @@ app.listen(PORT, HOST, () => {
   const printableHost = (HOST === '0.0.0.0' || HOST === '::') ? 'localhost' : HOST;
   console.log(`Server listening at http://${printableHost}:${PORT}`);
 });
+
 
 
 

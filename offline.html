@@ -1,13 +1,66 @@
-<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>PartyDocs – Offline</title>
-<style>
-body{margin:0;font:16px system-ui;background:#0f1115;color:#e6e6e6;display:flex;align-items:center;justify-content:center;height:100vh}
-.card{max-width:600px;padding:24px;background:#161821;border:1px solid #2a2d3a;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.3)}
-h1{margin:0 0 8px;font-size:20px} p{margin:8px 0 0;opacity:.9}
-a.btn{display:inline-block;margin-top:16px;padding:8px 12px;border:1px solid #2a2d3a;border-radius:10px;color:#e6e6e6;text-decoration:none}
-</style>
-<div class="card">
-  <h1>Mất kết nối mạng</h1>
-  <p>Bạn vẫn có thể mở các mục đã lưu trong bộ nhớ trình duyệt. Khi có mạng lại, trang sẽ tự đồng bộ.</p>
-  <a class="btn" href="/">Thử tải lại</a>
-</div>
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>PartyDocs – Offline</title>
+
+  <!-- Khuyến nghị PWA: giúp màu thanh địa chỉ phù hợp -->
+  <meta name="theme-color" content="#0f1115">
+  <link rel="manifest" href="/manifest.webmanifest">
+
+  <!-- Icon PWA (nếu có) -->
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png">
+
+  <!-- ===== CSS GỐC CỦA BẠN (giữ nguyên) ===== -->
+  <style>
+    body{margin:0;font:16px system-ui;background:#0f1115;color:#e6e6e6;display:flex;align-items:center;justify-content:center;height:100vh}
+    .card{max-width:600px;padding:24px;background:#161821;border:1px solid #2a2d3a;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.3)}
+    h1{margin:0 0 8px;font-size:20px} p{margin:8px 0 0;opacity:.9}
+    a.btn{display:inline-block;margin-top:16px;padding:8px 12px;border:1px solid #2a2d3a;border-radius:10px;color:#e6e6e6;text-decoration:none}
+  </style>
+
+  <!-- Bổ sung nhẹ: hỗ trợ high-contrast & in -->
+  <style>
+    @media (prefers-reduced-motion: reduce) {
+      * { scroll-behavior: auto !important; }
+    }
+    @media print {
+      body { background: #fff; color: #000; }
+      .card { box-shadow: none; border-color: #ccc; }
+    }
+  </style>
+</head>
+<body>
+  <!-- ===== HTML GỐC CỦA BẠN (giữ nguyên) ===== -->
+  <div class="card" role="region" aria-label="Thông báo ngoại tuyến">
+    <h1>Mất kết nối mạng</h1>
+    <p>Bạn vẫn có thể mở các mục đã lưu trong bộ nhớ trình duyệt. Khi có mạng lại, trang sẽ tự đồng bộ.</p>
+    <a class="btn" href="/">Thử tải lại</a>
+  </div>
+
+  <!-- Tự động chuyển lại trang khi có mạng -->
+  <script>
+    (function () {
+      // Nếu đã có mạng (ví dụ user đi thẳng vào /offline.html), quay lại trang chủ
+      if (navigator.onLine) {
+        try { location.replace('/'); } catch (_) { location.href = '/'; }
+        return;
+      }
+      // Khi mạng hồi phục -> quay về trang chủ để SW tiếp tục đồng bộ
+      window.addEventListener('online', function () {
+        try { location.replace('/'); } catch (_) { location.href = '/'; }
+      });
+
+      // Phòng trường hợp trình duyệt không phát hiện 'online' event:
+      // thử ping nhẹ sau 10s, nếu có mạng thì refresh.
+      setTimeout(function () {
+        fetch('/', { method: 'HEAD', cache: 'no-store' })
+          .then(function () { location.replace('/'); })
+          .catch(function () { /* vẫn offline, giữ nguyên trang */ });
+      }, 10000);
+    })();
+  </script>
+</body>
+</html>

@@ -87,20 +87,27 @@ app.get('/', (req, res) => {
 /* ===== Session Store (Redis nếu có, dev fallback MemoryStore) ===== */
 let sessionStore;
 try {
-  const connectRedis = require('connect-redis');
-  const RedisExport = connectRedis.default || connectRedis;
   const hasRedisUrl = !!process.env.REDIS_URL && String(process.env.REDIS_URL).trim() !== '';
   if (hasRedisUrl) {
-    const redisClient = new IORedis(process.env.REDIS_URL);
-    let storeInstance;
-    if (typeof RedisExport === 'function' && RedisExport.length === 1) {
-      const RedisStoreV6 = RedisExport(session);
-      storeInstance = new RedisStoreV6({ client: redisClient, prefix: process.env.REDIS_PREFIX || 'partydocs:sess:' });
+    const RedisStore = require('connect-redis').default || require('connect-redis');
+    const redisClient = new IORedis(process.env.REDIS_URL, { maxRetriesPerRequest: null });
+
+    // Ưu tiên API v7: export là class -> dùng new
+    if (typeof RedisStore === 'function' && RedisStore.prototype && RedisStore.prototype.get) {
+      sessionStore = new RedisStore({
+        client: redisClient,
+        prefix: process.env.REDIS_PREFIX || 'partydocs:sess:',
+      });
     } else {
-      const RedisStoreV7 = RedisExport;
-      storeInstance = new RedisStoreV7({ client: redisClient, prefix: process.env.REDIS_PREFIX || 'partydocs:sess:' });
+      // fallback kiểu v6: connectRedis(session) -> class
+      const RedisStoreV6 = (typeof RedisStore === 'function' && RedisStore.length === 1)
+        ? RedisStore(session)
+        : require('connect-redis')(session);
+      sessionStore = new RedisStoreV6({
+        client: redisClient,
+        prefix: process.env.REDIS_PREFIX || 'partydocs:sess:',
+      });
     }
-    sessionStore = storeInstance;
     console.log('[session] Using Redis store at', process.env.REDIS_URL);
   } else {
     console.warn('[session] REDIS_URL not set → using MemoryStore (dev only).');
@@ -2061,6 +2068,7 @@ app.listen(PORT, HOST, () => {
   const printableHost = (HOST === '0.0.0.0' || HOST === '::') ? 'localhost' : HOST;
   console.log(`Server listening at http://${printableHost}:${PORT}`);
 });
+
 
 
 

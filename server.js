@@ -18,22 +18,6 @@ const bcrypt = require('bcryptjs');
 const { google } = require('googleapis');
 const XLSX = require('xlsx');
 
-// --- Chuẩn hóa giá trị flow: trả về 'den' | 'di' | null ---
-function normalizeFlow(raw) {
-  if (!raw) return null;
-  const s = String(raw).trim().toLowerCase();
-  // bỏ dấu tiếng Việt
-  const noAccent = s.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-
-  const incoming = new Set(['den', 'van ban den', 'vanbanden', 'incoming', 'in', 'to']);
-  const outgoing = new Set(['di', 'van ban di', 'vanbandi', 'outgoing', 'out', 'from']);
-
-  if (incoming.has(noAccent)) return 'den';
-  if (outgoing.has(noAccent)) return 'di';
-  return null;
-}
-
-
 // ===== DB adapter (bắt buộc tạo file db.js như đã hướng dẫn) =====
 const db = require('./db'); // API: await db.ready; db.get/all/run/exec; db.transaction(fn)
 
@@ -161,7 +145,7 @@ function checkUploadRules(req, res, next) {
 }
 
 /* ===================== CATALOGS (có cache RAM) ===================== */
-const catalogsPath = path.join(__dirname, "catalogs.json");
+const catalogsPath = process.env.CATALOGS_PATH || path.join(__dirname, "catalogs.json");
 let catalogsCache = null;
 let catalogsMtime = 0;
 
@@ -618,8 +602,7 @@ app.post("/documents/upload", upload.single("file"), checkUploadRules, async (re
       hanXuLy="", nguoiGui="", nguoiPhuTrach="", nhan="", trichYeu="", flow=""
     } = req.body || {};
 
- // const flowFixed = flow ? String(flow) : "den";
-const flowFixed = normalizeFlow(flow) || "den"; // luôn chuẩn hóa
+    const flowFixed = flow ? String(flow) : "den"; // mặc định 'den'
 
     const meta = {
       name: originalName,
@@ -896,15 +879,14 @@ app.post("/documents/share", async (req, res) => {
 app.get("/documents/search", async (req, res) => {
   await db.ready;
   try {
-   let { from, to, loai, mucDo, donVi, text, flow, sender, receiver, dueFrom, dueTo } = req.query || {};
-const wh = []; const args = [];
+    const { from, to, loai, mucDo, donVi, text, flow, sender, receiver, dueFrom, dueTo } = req.query || {};
+    const wh = []; const args = [];
 
-const normFlow = normalizeFlow(flow);
-if (normFlow) {
-  wh.push("flow=?"); args.push(normFlow);
-} else {
-  wh.push("flow IN ('den','di')");
-}
+    if (flow === 'den' || flow === 'di') {
+      wh.push("flow=?"); args.push(flow);
+    } else {
+      wh.push("flow IN ('den','di')");
+    }
 
     if (from){ wh.push("createdAt>=?"); args.push(`${from} 00:00:00`); }
     if (to){   wh.push("createdAt<=?"); args.push(`${to} 23:59:59`); }
@@ -2079,8 +2061,6 @@ app.listen(PORT, HOST, () => {
   const printableHost = (HOST === '0.0.0.0' || HOST === '::') ? 'localhost' : HOST;
   console.log(`Server listening at http://${printableHost}:${PORT}`);
 });
-
-
 
 
 

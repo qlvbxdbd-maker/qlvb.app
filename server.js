@@ -53,7 +53,7 @@ app.use(express.json({ limit: process.env.JSON_LIMIT || '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 // NÊN đặt ngay sau app.use(express.urlencoded(...))
-const cors = require('cors');
+// const cors = require('cors');
 const FRONTEND = process.env.FRONTEND_ORIGIN; // ví dụ: https://docs.example.vn
 if (FRONTEND) {
   app.use(cors({ origin: FRONTEND, credentials: true }));
@@ -2061,6 +2061,7 @@ app.listen(PORT, HOST, () => {
   const printableHost = (HOST === '0.0.0.0' || HOST === '::') ? 'localhost' : HOST;
   console.log(`Server listening at http://${printableHost}:${PORT}`);
 });
+
 
 
 

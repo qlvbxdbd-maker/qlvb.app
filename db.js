@@ -79,6 +79,7 @@ async function initPg() {
     manageChiBo TEXT,
     userUnit TEXT,
     userChiBo TEXT,
+    chibo TEXT, 
     hash TEXT,
     active INTEGER DEFAULT 1,
     googleEmail TEXT,
@@ -105,16 +106,18 @@ async function initPg() {
   `;
   await exec(ddl);
   
-  // ====== THÊM PHẦN NÀY (migrations nhẹ) ======
-  // Bổ sung cột thiếu "chibo" – an toàn (no-op nếu đã tồn tại)
+    // ---- migrations nhẹ, an toàn (idempotent) ----
   await exec(`
-    ALTER TABLE users   ADD COLUMN IF NOT EXISTS chibo TEXT DEFAULT '';
-    ALTER TABLE members ADD COLUMN IF NOT EXISTS chibo TEXT; -- phòng trường hợp migrate từ SQLite
-    -- Index phụ (không bắt buộc, thêm nếu bạn có truy vấn lọc theo chibo)
+    -- Nếu users chưa có 'chibo' thì thêm, lần sau chạy lại cũng không lỗi
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS chibo TEXT;
+
+    -- (Tùy chọn) bảo đảm members đã có chibo (nếu bạn migrate từ SQLite)
+    ALTER TABLE members ADD COLUMN IF NOT EXISTS chibo TEXT;
+
+    -- (Tùy chọn) index nếu có lọc theo chibo
     CREATE INDEX IF NOT EXISTS idx_users_chibo   ON users(chibo);
     CREATE INDEX IF NOT EXISTS idx_members_chibo ON members(chibo);
   `);
-  // ============================================
 }
 
 // API chung
@@ -267,4 +270,5 @@ module.exports = new Proxy({}, {
     return (...args) => api[prop](...args);
   }
 });
+
 

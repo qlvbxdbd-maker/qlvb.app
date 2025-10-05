@@ -209,6 +209,7 @@ app.post("/admin/catalogs", ensureAdmin, (req,res)=>{
   }catch(e){ res.status(500).json({ ok:false, error:e.message }); }
 });
 
+
 /* ===================== GOOGLE DRIVE ===================== */
 function isInvalidGrant(err) {
   const s = String(
@@ -225,10 +226,34 @@ function buildOAuth() {
     process.env.GOOGLE_OAUTH_REDIRECT_URI
   );
 }
-const GOOGLE_TOKEN_PATH = process.env.GOOGLE_TOKEN_PATH || path.join(__dirname, 'data', 'token.json');
-fs.mkdirSync(path.dirname(GOOGLE_TOKEN_PATH), { recursive: true });
-const getTokens = () => fs.existsSync(GOOGLE_TOKEN_PATH) ? JSON.parse(fs.readFileSync(GOOGLE_TOKEN_PATH, "utf8") || "{}") : null;
-const saveTokens = (t) => fs.writeFileSync(GOOGLE_TOKEN_PATH, JSON.stringify(t, null, 2), "utf8");
+
+// ==== Token path (Render Free: dùng /tmp, không dùng /data) ====
+const DATA_DIR = process.env.DATA_DIR || '/tmp';
+fs.mkdirSync(DATA_DIR, { recursive: true });
+
+const GOOGLE_TOKEN_PATH =
+  process.env.GOOGLE_TOKEN_PATH || path.join(DATA_DIR, 'token.json');
+
+// Đọc/ghi token như cũ (giữ nguyên hai hàm, hoặc dùng bản có try/catch)
+const getTokens = () => {
+  try {
+    if (fs.existsSync(GOOGLE_TOKEN_PATH)) {
+      return JSON.parse(fs.readFileSync(GOOGLE_TOKEN_PATH, 'utf8') || '{}');
+    }
+  } catch (e) {
+    console.warn('Cannot read token:', e.message);
+  }
+  return null;
+};
+
+const saveTokens = (t) => {
+  try {
+    fs.writeFileSync(GOOGLE_TOKEN_PATH, JSON.stringify(t, null, 2), 'utf8');
+  } catch (e) {
+    console.error('Cannot write token:', e.message);
+  }
+};
+
 
 async function authAsCentral() {
   const oauth2 = buildOAuth();
@@ -2068,6 +2093,7 @@ app.listen(PORT, HOST, () => {
   const printableHost = (HOST === '0.0.0.0' || HOST === '::') ? 'localhost' : HOST;
   console.log(`Server listening at http://${printableHost}:${PORT}`);
 });
+
 
 
 

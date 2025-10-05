@@ -602,7 +602,7 @@ app.post("/documents/upload", upload.single("file"), checkUploadRules, async (re
       hanXuLy="", nguoiGui="", nguoiPhuTrach="", nhan="", trichYeu="", flow=""
     } = req.body || {};
 
-    const flowFixed = flow ? String(flow) : "den"; // mặc định 'den'
+    const flowFixed = flow ? String(flow) : "di"; // mặc định 'di'
 
     const meta = {
       name: originalName,
@@ -2061,6 +2061,7 @@ app.listen(PORT, HOST, () => {
   const printableHost = (HOST === '0.0.0.0' || HOST === '::') ? 'localhost' : HOST;
   console.log(`Server listening at http://${printableHost}:${PORT}`);
 });
+
 
 
 

@@ -104,6 +104,17 @@ async function initPg() {
   CREATE INDEX IF NOT EXISTS idx_members_created ON members(createdAt);
   `;
   await exec(ddl);
+  
+  // ====== THÊM PHẦN NÀY (migrations nhẹ) ======
+  // Bổ sung cột thiếu "chibo" – an toàn (no-op nếu đã tồn tại)
+  await exec(`
+    ALTER TABLE users   ADD COLUMN IF NOT EXISTS chibo TEXT DEFAULT '';
+    ALTER TABLE members ADD COLUMN IF NOT EXISTS chibo TEXT; -- phòng trường hợp migrate từ SQLite
+    -- Index phụ (không bắt buộc, thêm nếu bạn có truy vấn lọc theo chibo)
+    CREATE INDEX IF NOT EXISTS idx_users_chibo   ON users(chibo);
+    CREATE INDEX IF NOT EXISTS idx_members_chibo ON members(chibo);
+  `);
+  // ============================================
 }
 
 // API chung
@@ -256,3 +267,4 @@ module.exports = new Proxy({}, {
     return (...args) => api[prop](...args);
   }
 });
+

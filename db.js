@@ -21,18 +21,15 @@ function toPgParams(sql, args = []) {
 async function initPg() {
   pg = require('pg');
 
-  // Giữ tương thích với PGSSLMODE=require|disable
   const wantSSL = (process.env.PGSSLMODE || 'require') !== 'disable';
-
   client = new pg.Pool({
     connectionString: process.env.DATABASE_URL,
     ssl: wantSSL ? { rejectUnauthorized: false } : false,
     max: 5,
   });
 
-  // DDL chuẩn – BÁM ĐÚNG cấu trúc server.js
-  const ddl = `
-  -- ===== tables =====
+  // 1) Chỉ tạo bảng (không tạo index ở đây)
+  const ddlTables = `
   CREATE TABLE IF NOT EXISTS docs (
     id            TEXT PRIMARY KEY,
     name          TEXT,
@@ -69,6 +66,7 @@ async function initPg() {
     danToc TEXT, tonGiao TEXT, ksTinh TEXT, ksHuyen TEXT, ksXa TEXT,
     ngayVaoDang TEXT, ngayChinhThuc TEXT, soTheDang TEXT UNIQUE,
     soCCCD TEXT UNIQUE, ngayCapCCCD TEXT,
+    /* Lưu ý: Postgres hạ chữ thường -> chiBo === chibo */
     chiBo TEXT, dangUyCapUy TEXT, donViBoPhan TEXT,
     email TEXT,
     ngayBatDauSH TEXT, ngayKetThucSH TEXT,
@@ -95,30 +93,51 @@ async function initPg() {
     googleEmail TEXT,
     createdAt TIMESTAMP DEFAULT NOW()
   );
-
-  -- ===== indexes: CHỈ tạo cho cột có thật =====
-  CREATE INDEX IF NOT EXISTS idx_docs_createdAt   ON docs(createdAt);
-  CREATE INDEX IF NOT EXISTS idx_docs_flow        ON docs(flow);
-  CREATE INDEX IF NOT EXISTS idx_docs_donVi       ON docs(donVi);
-  CREATE INDEX IF NOT EXISTS idx_docs_mucDo       ON docs(mucDo);
-  CREATE INDEX IF NOT EXISTS idx_docs_loai        ON docs(loai);
-  CREATE INDEX IF NOT EXISTS idx_docs_soHieu      ON docs(soHieu);
-  CREATE INDEX IF NOT EXISTS idx_docs_nguoiGui    ON docs(nguoiGui);
-  CREATE INDEX IF NOT EXISTS idx_docs_nguoiPT     ON docs(nguoiPhuTrach);
-  CREATE INDEX IF NOT EXISTS idx_docs_hanXuLy     ON docs(hanXuLy);
-  CREATE INDEX IF NOT EXISTS idx_docs_ownerEmail  ON docs(ownerEmail);
-
-  CREATE INDEX IF NOT EXISTS idx_shares_file      ON shares(fileId);
-  CREATE INDEX IF NOT EXISTS idx_shares_email     ON shares(email);
-
-  CREATE INDEX IF NOT EXISTS idx_members_email    ON members(email);
-  CREATE INDEX IF NOT EXISTS idx_members_chiBo    ON members(chiBo);
-  CREATE INDEX IF NOT EXISTS idx_members_created  ON members(createdAt);
-  CREATE INDEX IF NOT EXISTS idx_users_role       ON users(role);
-  CREATE INDEX IF NOT EXISTS idx_users_googleEmail ON users(googleEmail);
   `;
+  await exec(ddlTables);
 
-  await exec(ddl);
+  // 2) Migration an toàn – đảm bảo cột tồn tại TRƯỚC khi tạo index
+  await exec(`
+    ALTER TABLE users   ADD COLUMN IF NOT EXISTS chibo TEXT;
+    ALTER TABLE members ADD COLUMN IF NOT EXISTS chibo TEXT;
+    DROP INDEX IF EXISTS idx_docs_nguoi; -- dọn index cũ sai tên cột nếu có
+  `);
+
+  // 3) Tạo index (chỉ tạo idx_members_chiBo khi cột đã có)
+  const ddlIndexes = `
+    CREATE INDEX IF NOT EXISTS idx_docs_createdAt   ON docs(createdAt);
+    CREATE INDEX IF NOT EXISTS idx_docs_flow        ON docs(flow);
+    CREATE INDEX IF NOT EXISTS idx_docs_donVi       ON docs(donVi);
+    CREATE INDEX IF NOT EXISTS idx_docs_mucDo       ON docs(mucDo);
+    CREATE INDEX IF NOT EXISTS idx_docs_loai        ON docs(loai);
+    CREATE INDEX IF NOT EXISTS idx_docs_soHieu      ON docs(soHieu);
+    CREATE INDEX IF NOT EXISTS idx_docs_nguoiGui    ON docs(nguoiGui);
+    CREATE INDEX IF NOT EXISTS idx_docs_nguoiPT     ON docs(nguoiPhuTrach);
+    CREATE INDEX IF NOT EXISTS idx_docs_hanXuLy     ON docs(hanXuLy);
+    CREATE INDEX IF NOT EXISTS idx_docs_ownerEmail  ON docs(ownerEmail);
+
+    CREATE INDEX IF NOT EXISTS idx_shares_file      ON shares(fileId);
+    CREATE INDEX IF NOT EXISTS idx_shares_email     ON shares(email);
+
+    CREATE INDEX IF NOT EXISTS idx_members_email    ON members(email);
+    -- idx_members_chiBo cần kiểm tra cột tồn tại
+    DO $$
+    BEGIN
+      IF EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_name='members' AND column_name='chibo'
+      ) THEN
+        CREATE INDEX IF NOT EXISTS idx_members_chiBo ON members(chibo);
+      END IF;
+    END$$;
+
+    CREATE INDEX IF NOT EXISTS idx_members_created  ON members(createdAt);
+
+    CREATE INDEX IF NOT EXISTS idx_users_role       ON users(role);
+    CREATE INDEX IF NOT EXISTS idx_users_googleEmail ON users(googleemail);
+  `;
+  await exec(ddlIndexes);
+}
 
   // ---- migrations an toàn (idempotent) ----
   await exec(`
@@ -308,3 +327,4 @@ module.exports = new Proxy(
     },
   }
 );
+

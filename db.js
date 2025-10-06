@@ -5,15 +5,21 @@ const fs = require('fs');
 const isPg = !!process.env.DATABASE_URL;
 let client, pg;
 
-/** Chuyển dấu ? của SQLite -> $1, $2 ... cho Postgres */
+/** Chuyển dấu ? của SQLite -> $1, $2 ... cho Postgres (không dùng regex để tránh lỗi copy/paste) */
 function toPgParams(sql, args = []) {
-let i = 0;
-const text = sql.replace(/?/g, () => {
-i += 1;
-return $${i};
-});
-return { text, values: args };
+  let i = 0;
+  let out = '';
+  for (let c of String(sql)) {
+    if (c === '?') {
+      i += 1;
+      out += '$' + i;
+    } else {
+      out += c;
+    }
+  }
+  return { text: out, values: args };
 }
+
 
 /* ------------------------------------------------------------------ /
 / Postgres (Neon) /
@@ -338,3 +344,4 @@ return (...args) => apiprop
 },
 }
 );
+

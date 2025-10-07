@@ -104,16 +104,19 @@ createdAt TIMESTAMP DEFAULT NOW()
 `;
 await exec(ddlTables);
 
-// 2) Migration an toàn – đảm bảo cột tồn tại TRƯỚC khi tạo index
+// ---- migrations an toàn (idempotent) ----
 await exec(`
--- Thêm cột chibo nếu thiếu (users, members)
-ALTER TABLE users ADD COLUMN IF NOT EXISTS chibo TEXT;
-ALTER TABLE members ADD COLUMN IF NOT EXISTS chibo TEXT;
+  -- Bổ sung các cột còn thiếu trước khi tạo index
+  ALTER TABLE users   ADD COLUMN IF NOT EXISTS chibo TEXT;
+  ALTER TABLE members ADD COLUMN IF NOT EXISTS chibo TEXT;
 
--- Xóa index cũ sai tên cột nếu từng tồn tại (nguoi -> không có cột này)
-DROP INDEX IF EXISTS idx_docs_nguoi;
+  ALTER TABLE docs    ADD COLUMN IF NOT EXISTS createdAt  TIMESTAMP DEFAULT NOW();
+  ALTER TABLE shares  ADD COLUMN IF NOT EXISTS createdAt  TIMESTAMP DEFAULT NOW();
+  ALTER TABLE members ADD COLUMN IF NOT EXISTS createdAt  TIMESTAMP DEFAULT NOW();
+  ALTER TABLE users   ADD COLUMN IF NOT EXISTS createdAt  TIMESTAMP DEFAULT NOW();
 
-
+  -- Xóa index cũ sai tên nếu từng tồn tại
+  DROP INDEX IF EXISTS idx_docs_nguoi;
 `);
 
 // 3) Tạo index (chỉ tạo idx_members_chiBo khi cột đã có)
@@ -344,4 +347,5 @@ return (...args) => apiprop
 },
 }
 );
+
 

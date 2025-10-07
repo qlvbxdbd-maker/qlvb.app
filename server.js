@@ -309,17 +309,30 @@ app.get("/auth/admin/drive", (req, res) => {
   const url = oauth2.generateAuthUrl({ access_type: "offline", scope: scopes, prompt: "consent" });
   res.redirect(url);
 });
-app.get("/oauth2/callback", async (req, res) => {
+// --- Cho phép nhiều đường dẫn callback trỏ về cùng một handler
+async function handleOAuthCallback(req, res) {
   try {
     const oauth2 = buildOAuth();
     const { tokens } = await oauth2.getToken(req.query.code);
     if (tokens.refresh_token) saveTokens({ ...getTokens(), ...tokens });
     oauth2.setCredentials(tokens);
+
+    // Khởi tạo thư mục gốc nếu chưa có
     const drive = google.drive({ version: "v3", auth: oauth2 });
     await ensureRootFolder(drive, process.env.DRIVE_ROOT_FOLDER_NAME || "PartyDocsRoot");
+
+    // về trang chủ hoặc trang quản trị
     res.redirect("/?authok=1");
-  } catch (e) { res.status(500).send("Lỗi callback OAuth: " + e.message); }
-});
+  } catch (e) {
+    res.status(500).send("Lỗi callback OAuth: " + e.message);
+  }
+}
+
+// Chấp nhận nhiều alias để tránh 404 khi sai đường dẫn
+app.get("/oauth2/callback", handleOAuthCallback);
+app.get("/oauth2callback",   handleOAuthCallback);
+app.get("/auth/google/callback", handleOAuthCallback);
+
 app.get("/auth/status", async (req, res) => {
   await db.ready;
   const t = getTokens();
@@ -2093,6 +2106,7 @@ app.listen(PORT, HOST, () => {
   const printableHost = (HOST === '0.0.0.0' || HOST === '::') ? 'localhost' : HOST;
   console.log(`Server listening at http://${printableHost}:${PORT}`);
 });
+
 
 
 

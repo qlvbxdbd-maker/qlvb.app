@@ -306,9 +306,15 @@ app.get("/auth/admin/drive", (req, res) => {
   const oauth2 = buildOAuth();
   const envScopes = (process.env.GOOGLE_OAUTH_SCOPES || "").split(/\s+/).filter(Boolean);
   const scopes = envScopes.length ? envScopes : ["https://www.googleapis.com/auth/drive"];
-  const url = oauth2.generateAuthUrl({ access_type: "offline", scope: scopes, prompt: "consent" });
+  const url = oauth2.generateAuthUrl({
+    access_type: "offline",
+    scope: scopes,
+    prompt: "consent",
+    include_granted_scopes: true,
+  });
   res.redirect(url);
 });
+
 // --- Cho phép nhiều đường dẫn callback trỏ về cùng một handler
 async function handleOAuthCallback(req, res) {
   try {
@@ -2106,6 +2112,7 @@ app.listen(PORT, HOST, () => {
   const printableHost = (HOST === '0.0.0.0' || HOST === '::') ? 'localhost' : HOST;
   console.log(`Server listening at http://${printableHost}:${PORT}`);
 });
+
 
 
 

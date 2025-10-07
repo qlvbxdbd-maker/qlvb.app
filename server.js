@@ -1062,55 +1062,24 @@ app.get("/documents/:id/download", async (req, res) => {
 // === OPEN: luôn proxy qua download inline, không dùng Google Viewer ===
 app.get("/documents/:id/open", async (req, res) => {
   try {
+    // Kiểm tra quyền truy cập theo DB (không liên quan quyền Drive)
     const chk = await canAccessDocById(req, req.params.id);
-    if (!chk.ok) return res.status(chk.code).send(chk.error || "Forbidden");
+    if (!chk.ok) {
+      return res.status(chk.code).send(chk.error || "Forbidden");
+    }
 
-    // Mở trực tiếp qua proxy (stream) -> không bao giờ dính màn hình xin quyền
+    // Luôn mở qua proxy: stream file về (inline) => không bao giờ gặp màn hình "Bạn cần có quyền truy cập"
     return res.redirect(`/documents/${encodeURIComponent(req.params.id)}/download?inline=1`);
   } catch (e) {
     if (isInvalidGrant(e)) {
-      try { if (fs.existsSync(GOOGLE_TOKEN_PATH)) fs.unlinkSync(GOOGLE_TOKEN_PATH); } catch {}
-      return res.status(401).send("Open lỗi: invalid_grant – Vào /auth/admin/drive để cấp quyền lại.");
+      try {
+        if (fs.existsSync(GOOGLE_TOKEN_PATH)) fs.unlinkSync(GOOGLE_TOKEN_PATH);
+      } catch {}
+      return res
+        .status(401)
+        .send("Open lỗi: invalid_grant – Vào /auth/admin/drive để cấp quyền lại.");
     }
-    res.status(500).send("Open lỗi: " + e.message);
-  }
-});
-
-    const row = await db.get("SELECT id, flow, ownerEmail FROM docs WHERE id=?", req.params.id) || {};
-
-    let wantProxy = String(req.query.proxy || "") === "1";
-    if (!wantProxy && row.flow === "personal") wantProxy = true;
-
-    if (!wantProxy && me?.email && f.data?.id) {
-      const emails = await resolveViewEmailsForUser(me.id || me.email, me.email);
-      for (const em of emails) {
-        const key = `${f.data.id}:${em}:reader`;
-        if (!shouldGrantNow(key)) continue;
-        try {
-          await withRetry(() => drive.permissions.create({
-            fileId: f.data.id,
-            requestBody: { type: "user", role: "reader", emailAddress: em },
-            sendNotificationEmail: false,
-            supportsAllDrives: true
-          }));
-          try {
-            await db.run("INSERT INTO shares(fileId,email,role,notified,message) VALUES (?,?,?,?,?)",
-              f.data.id, em, "reader", 0, null);
-          } catch {}
-        } catch {}
-      }
-    }
-
-    if (wantProxy || !f.data.webViewLink) {
-      return res.redirect(`/documents/${encodeURIComponent(req.params.id)}/download?inline=1`);
-    }
-    return res.redirect(f.data.webViewLink);
-  } catch (e) {
-    if (isInvalidGrant(e)) {
-      try { if (fs.existsSync(GOOGLE_TOKEN_PATH)) fs.unlinkSync(GOOGLE_TOKEN_PATH); } catch {}
-      return res.status(401).send("Open lỗi: invalid_grant – Vào /auth/admin/drive để cấp quyền lại.");
-    }
-    res.status(500).send("Open lỗi: " + e.message);
+    return res.status(500).send("Open lỗi: " + e.message);
   }
 });
 
@@ -2113,6 +2082,7 @@ app.listen(PORT, HOST, () => {
   const printableHost = (HOST === '0.0.0.0' || HOST === '::') ? 'localhost' : HOST;
   console.log(`Server listening at http://${printableHost}:${PORT}`);
 });
+
 
 
 

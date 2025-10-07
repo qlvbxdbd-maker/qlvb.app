@@ -337,15 +337,22 @@ api = wrapSqlite();
 const ready = init();
 
 module.exports = new Proxy(
-{},
-{
-get(_, prop) {
-if (prop === 'isPg') return isPg;
-if (prop === 'ready') return ready;
-return (...args) => apiprop
-;
-},
-}
+  {},
+  {
+    get(_, prop) {
+      if (prop === 'isPg') return isPg;
+      if (prop === 'ready') return ready;
+      // Trả về hàm uỷ quyền an toàn tới API thật
+      return (...args) => {
+        const fn = api?.[prop];
+        if (typeof fn !== 'function') {
+          throw new Error(`db.${String(prop)} is not available yet`);
+        }
+        return fn(...args);
+      };
+    },
+  }
 );
+
 
 

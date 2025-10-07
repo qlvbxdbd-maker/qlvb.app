@@ -1059,20 +1059,22 @@ app.get("/documents/:id/download", async (req, res) => {
   }
 });
 
+// === OPEN: luôn proxy qua download inline, không dùng Google Viewer ===
 app.get("/documents/:id/open", async (req, res) => {
   try {
-    const me  = currentUser(req);
     const chk = await canAccessDocById(req, req.params.id);
     if (!chk.ok) return res.status(chk.code).send(chk.error || "Forbidden");
 
-    const auth  = await authAsCentral();
-    const drive = google.drive({ version: "v3", auth });
-
-    const f = await drive.files.get({
-      fileId: req.params.id,
-      fields: "id,name,mimeType,webViewLink,owners",
-      supportsAllDrives: true
-    });
+    // Mở trực tiếp qua proxy (stream) -> không bao giờ dính màn hình xin quyền
+    return res.redirect(`/documents/${encodeURIComponent(req.params.id)}/download?inline=1`);
+  } catch (e) {
+    if (isInvalidGrant(e)) {
+      try { if (fs.existsSync(GOOGLE_TOKEN_PATH)) fs.unlinkSync(GOOGLE_TOKEN_PATH); } catch {}
+      return res.status(401).send("Open lỗi: invalid_grant – Vào /auth/admin/drive để cấp quyền lại.");
+    }
+    res.status(500).send("Open lỗi: " + e.message);
+  }
+});
 
     const row = await db.get("SELECT id, flow, ownerEmail FROM docs WHERE id=?", req.params.id) || {};
 
@@ -1159,7 +1161,7 @@ app.get("/documents/:id/preview", async (req, res) => {
         .send(`${shellTop}<iframe src="${src}" style="width:100%;height:100%;border:0"></iframe>${shellBottom}`);
     }
 
-    let canDirect = !!meta.data.webViewLink;
+    let canDirect = false; // luôn dùng proxy/inline, không nhảy sang webViewLink
     if (canDirect) {
       let hadAnyGrant = false;
       let grantDeniedAll = false;
@@ -1195,8 +1197,7 @@ app.get("/documents/:id/preview", async (req, res) => {
         if (hadAnyGrant) { await sleep(300); }
       } catch {}
     }
-    if (canDirect) return res.redirect(meta.data.webViewLink);
-
+   
     return res
       .status(200)
       .type("text/html")
@@ -2112,6 +2113,7 @@ app.listen(PORT, HOST, () => {
   const printableHost = (HOST === '0.0.0.0' || HOST === '::') ? 'localhost' : HOST;
   console.log(`Server listening at http://${printableHost}:${PORT}`);
 });
+
 
 
 

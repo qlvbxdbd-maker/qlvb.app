@@ -985,19 +985,43 @@ app.get("/documents/latest", async (req, res) => {
   await db.ready;
   try {
     const limit = Math.min(Number(req.query.limit || 8), 50);
+
     const acl = await docACL(req);
     const wh = ["flow IN ('den','di')"];
     if (acl.clause) wh.push(`(${acl.clause})`);
     const whereSql = `WHERE ${wh.join(" AND ")}`;
+
     const rows = await db.all(`
-      SELECT id,name,soHieu,mucDo,nguoiGui,hanXuLy,trichYeu,webViewLink,createdAt
+      SELECT id,name,soHieu,loai,mucDo,donVi,nguoiGui,hanXuLy,trichYeu,webViewLink,createdAt
       FROM docs ${whereSql}
-      ORDER BY createdAt DESC LIMIT ?
+      ORDER BY createdAt DESC
+      LIMIT ?
     `, ...acl.params, limit);
 
-    const items = rows.map(r => ({ ...r, webViewLink: `/documents/${encodeURIComponent(r.id)}/open` }));
-    res.json({ ok:true, items });
-  } catch (e) { res.status(500).json({ ok:false, error:e.message }); }
+    const items = rows.map(r => ({
+      id: r.id,
+      name: r.name,
+      // luôn mở qua proxy để khỏi đụng màn hình xin quyền
+      webViewLink: `/documents/${encodeURIComponent(r.id)}/open`,
+      gdocLink: r.webViewLink, // giữ link gốc nếu cần
+      openUrl: `/documents/${encodeURIComponent(r.id)}/open`,
+      createdAt: r.createdAt,
+      modifiedTime: r.createdAt, // frontend dùng field này cho cột "Ngày"
+      appProperties: {
+        soHieu:   r.soHieu,
+        loai:     r.loai,
+        mucDo:    r.mucDo,
+        donVi:    r.donVi,
+        nguoiGui: r.nguoiGui,
+        hanXuLy:  r.hanXuLy,
+        trichYeu: r.trichYeu
+      }
+    }));
+
+    res.json({ ok: true, items });
+  } catch (e) {
+    res.status(500).json({ ok: false, error: e.message });
+  }
 });
 
 /* ===================== DOWNLOAD & OPEN (Google Viewer) ===================== */
@@ -2082,6 +2106,7 @@ app.listen(PORT, HOST, () => {
   const printableHost = (HOST === '0.0.0.0' || HOST === '::') ? 'localhost' : HOST;
   console.log(`Server listening at http://${printableHost}:${PORT}`);
 });
+
 
 
 

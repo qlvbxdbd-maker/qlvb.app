@@ -247,12 +247,10 @@ function buildOAuth() {
 
 // ==== Token path (Render Free: dùng /tmp, không dùng /data) ====
 // (Đổi tên biến để không đụng với DATA_DIR dùng cho catalogs)
-const GOOGLE_DATA_DIR = process.env.GOOGLE_DATA_DIR || '/tmp';
+const GOOGLE_DATA_DIR = process.env.GOOGLE_DATA_DIR || path.join(process.cwd(), 'data');
 fs.mkdirSync(GOOGLE_DATA_DIR, { recursive: true });
-
 const GOOGLE_TOKEN_PATH =
   process.env.GOOGLE_TOKEN_PATH || path.join(GOOGLE_DATA_DIR, 'token.json');
-
 
 // Đọc/ghi token như cũ (giữ nguyên hai hàm, hoặc dùng bản có try/catch)
 const getTokens = () => {
@@ -2136,6 +2134,7 @@ app.listen(PORT, HOST, () => {
   const printableHost = (HOST === '0.0.0.0' || HOST === '::') ? 'localhost' : HOST;
   console.log(`Server listening at http://${printableHost}:${PORT}`);
 });
+
 
 
 

@@ -11,7 +11,6 @@ const multer = require('multer');
 const compression = require('compression');
 const cors = require('cors');
 
-
 const session = require('express-session');
 const bcrypt = require('bcryptjs');
 
@@ -38,30 +37,62 @@ function parseArrayOrCSV(s) {
   return [];
 }
 
+/* ===================== CATALOGS STORAGE – FIX ENOENT ===================== */
+// Lưu ở ./data/catalogs.json và luôn đảm bảo thư mục tồn tại
+const DATA_DIR      = path.join(process.cwd(), 'data');
+const CATALOGS_PATH = path.join(DATA_DIR, 'catalogs.json');
+
+try { fs.mkdirSync(DATA_DIR, { recursive: true }); } catch {}
+
+function readCatalogsSafe(){
+  try {
+    const raw = fs.readFileSync(CATALOGS_PATH, 'utf8');
+    return JSON.parse(raw);
+  } catch {
+    return {
+      loaiVanBan: [
+        { id:'congvan',   label:'Công văn' },
+        { id:'baocao',    label:'Báo cáo' },
+        { id:'quyetdinh', label:'Quyết định' },
+      ],
+      mucDo: [
+        { id:'thuong', label:'Thường' },
+        { id:'khan',   label:'Khẩn' },
+        { id:'mat',    label:'Mật' },
+      ],
+      donVi: [
+        { id:'danguy', label:'Đảng ủy' },
+        { id:'chibo',  label:'Chi bộ' },
+        { id:'chung',  label:'Chung' },
+      ],
+      nhan: ['Đảng vụ','Khẩn','Nội bộ']
+    };
+  }
+}
+function writeCatalogsSafe(obj){
+  fs.writeFileSync(CATALOGS_PATH, JSON.stringify(obj, null, 2), 'utf8');
+}
+
 /* ===================== HTTP & STATIC ===================== */
 const app = express();
 const isProd = process.env.NODE_ENV === 'production';
 app.set('trust proxy', 1);
 
+// CORS: nếu có FRONTEND_ORIGIN thì chỉ cho phép origin đó; ngược lại cho cùng-origin
+const FRONTEND = process.env.FRONTEND_ORIGIN; // ví dụ: https://docs.example.vn
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || true, // cùng domain thì true là đủ
-  credentials: true                        // nếu dùng cookie session
+  origin: FRONTEND || true,
+  credentials: true
 }));
 
 app.use(compression());
 app.use(express.json({ limit: process.env.JSON_LIMIT || '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// NÊN đặt ngay sau app.use(express.urlencoded(...))
-// const cors = require('cors');
-const FRONTEND = process.env.FRONTEND_ORIGIN; // ví dụ: https://docs.example.vn
-if (FRONTEND) {
-  app.use(cors({ origin: FRONTEND, credentials: true }));
-}
-
 // Health check cho Render (trả 200 nhanh gọn)
 app.get('/healthz', (req, res) => res.status(200).send('OK'));
 
+// Static
 app.use(express.static(path.join(__dirname, 'public'), {
   maxAge: isProd ? '7d' : '0',
   etag: true,
@@ -70,7 +101,6 @@ app.use(express.static(path.join(__dirname, 'public'), {
     if (['sw.js','manifest.webmanifest','offline.html'].includes(base)) {
       res.setHeader('Cache-Control', 'no-cache');
     }
-    // mọi file .html đều no-cache
     if (filePath.endsWith('.html')) {
       res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     }
@@ -89,21 +119,22 @@ let sessionStore;
 try {
   const hasRedisUrl = !!process.env.REDIS_URL && String(process.env.REDIS_URL).trim() !== '';
   if (hasRedisUrl) {
-    const RedisStore = require('connect-redis').default || require('connect-redis');
+    const RedisStoreExport = require('connect-redis').default || require('connect-redis');
     const redisClient = new IORedis(process.env.REDIS_URL, { maxRetriesPerRequest: null });
 
-    // Ưu tiên API v7: export là class -> dùng new
-    if (typeof RedisStore === 'function' && RedisStore.prototype && RedisStore.prototype.get) {
-      sessionStore = new RedisStore({
+    // Một số phiên bản export class trực tiếp, một số export factory
+    if (typeof RedisStoreExport === 'function' && RedisStoreExport.prototype && RedisStoreExport.prototype.get) {
+      // v7+
+      sessionStore = new RedisStoreExport({
         client: redisClient,
         prefix: process.env.REDIS_PREFIX || 'partydocs:sess:',
       });
     } else {
-      // fallback kiểu v6: connectRedis(session) -> class
-      const RedisStoreV6 = (typeof RedisStore === 'function' && RedisStore.length === 1)
-        ? RedisStore(session)
+      // v6 theo kiểu factory(connect)(session)
+      const RedisStoreFactory = (typeof RedisStoreExport === 'function' && RedisStoreExport.length === 1)
+        ? RedisStoreExport(session)
         : require('connect-redis')(session);
-      sessionStore = new RedisStoreV6({
+      sessionStore = new RedisStoreFactory({
         client: redisClient,
         prefix: process.env.REDIS_PREFIX || 'partydocs:sess:',
       });
@@ -133,6 +164,52 @@ app.use(session({
   }
 }));
 
+/* ===================== ROUTES: Catalogs ===================== */
+// Trả catalogs cho client (ai cũng gọi được)
+app.get('/catalogs', (req, res) => {
+  try {
+    const data = readCatalogsSafe();
+    res.json(data);
+  } catch (e) {
+    res.status(500).json({ error: e.message || 'Catalogs load error' });
+  }
+});
+
+// Admin load catalogs raw (để sửa trong UI Quản lý danh mục)
+app.get('/admin/catalogs', (req, res) => {
+  const u = req.session?.user;
+  if (!u || u.role !== 'admin') {
+    return res.status(401).json({ ok:false, error:'Unauthorized' });
+  }
+  try {
+    res.json({ ok:true, data: readCatalogsSafe() });
+  } catch (e) {
+    res.status(500).json({ ok:false, error: e.message || 'Read error' });
+  }
+});
+
+// Admin lưu catalogs
+app.post('/admin/catalogs', (req, res) => {
+  const u = req.session?.user;
+  if (!u || u.role !== 'admin') {
+    return res.status(401).json({ ok:false, error:'Unauthorized' });
+  }
+  try {
+    const body = req.body || {};
+    // tối thiểu 4 khóa
+    const data = {
+      loaiVanBan: Array.isArray(body.loaiVanBan) ? body.loaiVanBan : [],
+      mucDo:      Array.isArray(body.mucDo)      ? body.mucDo      : [],
+      donVi:      Array.isArray(body.donVi)      ? body.donVi      : [],
+      nhan:       Array.isArray(body.nhan)       ? body.nhan       : [],
+    };
+    writeCatalogsSafe(data);
+    res.json({ ok:true });
+  } catch (e) {
+    res.status(500).json({ ok:false, error: e.message || 'Write error' });
+  }
+});
+
 // Upload temp
 const uploadsDir = path.join(__dirname, "uploads");
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
@@ -150,65 +227,6 @@ function checkUploadRules(req, res, next) {
   }
   next();
 }
-
-/* ===================== CATALOGS (có cache RAM) ===================== */
-const catalogsPath = process.env.CATALOGS_PATH || path.join(__dirname, "catalogs.json");
-let catalogsCache = null;
-let catalogsMtime = 0;
-
-function loadCatalogsFromDisk() {
-  try {
-    const stat = fs.existsSync(catalogsPath) ? fs.statSync(catalogsPath) : null;
-    if (stat && stat.mtimeMs === catalogsMtime && catalogsCache) return catalogsCache;
-    if (stat) {
-      catalogsCache = JSON.parse(fs.readFileSync(catalogsPath, "utf8") || "{}");
-      catalogsMtime = stat.mtimeMs;
-      return catalogsCache;
-    }
-  } catch {}
-  catalogsCache = {
-    loaiVanBan: [
-      { id: "congvan", label: "Công văn" },
-      { id: "baocao", label: "Báo cáo" },
-      { id: "quyetdinh", label: "Quyết định" }
-    ],
-    mucDo: [
-      { id: "thuong", label: "Thường" },
-      { id: "khan",   label: "Khẩn" },
-      { id: "mat",    label: "Mật" }
-    ],
-    donVi: [
-      { id: "danguy", label: "Đảng ủy" },
-      { id: "chibo",  label: "Chi bộ" },
-      { id: "chung",  label: "Chung" }
-    ],
-    nhan: ["Đảng vụ", "Khẩn", "Nội bộ"]
-  };
-  catalogsMtime = Date.now();
-  return catalogsCache;
-}
-
-function ensureAdmin(req, res, next) {
-  if (req.session?.user?.role === "admin") return next();
-  return res.status(403).json({ ok:false, error:"Chỉ dành cho admin" });
-}
-app.get("/catalogs", (req, res) => {
-  try { res.json(loadCatalogsFromDisk()); }
-  catch (e) { res.status(500).json({ ok: false, error: e.message }); }
-});
-app.get("/admin/catalogs", ensureAdmin, (req,res)=>{
-  try{ res.json({ ok:true, data: loadCatalogsFromDisk() }); }
-  catch(e){ res.status(500).json({ ok:false, error:e.message }); }
-});
-app.post("/admin/catalogs", ensureAdmin, (req,res)=>{
-  try{
-    fs.writeFileSync(catalogsPath, JSON.stringify(req.body||{}, null, 2), "utf8");
-    catalogsCache = req.body || {};
-    catalogsMtime = Date.now();
-    res.json({ ok:true });
-  }catch(e){ res.status(500).json({ ok:false, error:e.message }); }
-});
-
 
 /* ===================== GOOGLE DRIVE ===================== */
 function isInvalidGrant(err) {
@@ -228,11 +246,13 @@ function buildOAuth() {
 }
 
 // ==== Token path (Render Free: dùng /tmp, không dùng /data) ====
-const DATA_DIR = process.env.DATA_DIR || '/tmp';
-fs.mkdirSync(DATA_DIR, { recursive: true });
+// (Đổi tên biến để không đụng với DATA_DIR dùng cho catalogs)
+const GOOGLE_DATA_DIR = process.env.GOOGLE_DATA_DIR || '/tmp';
+fs.mkdirSync(GOOGLE_DATA_DIR, { recursive: true });
 
 const GOOGLE_TOKEN_PATH =
-  process.env.GOOGLE_TOKEN_PATH || path.join(DATA_DIR, 'token.json');
+  process.env.GOOGLE_TOKEN_PATH || path.join(GOOGLE_DATA_DIR, 'token.json');
+
 
 // Đọc/ghi token như cũ (giữ nguyên hai hàm, hoặc dùng bản có try/catch)
 const getTokens = () => {
@@ -2116,6 +2136,7 @@ app.listen(PORT, HOST, () => {
   const printableHost = (HOST === '0.0.0.0' || HOST === '::') ? 'localhost' : HOST;
   console.log(`Server listening at http://${printableHost}:${PORT}`);
 });
+
 
 
 

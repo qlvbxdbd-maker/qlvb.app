@@ -245,30 +245,47 @@ function buildOAuth() {
   );
 }
 
-const GOOGLE_DATA_DIR = process.env.GOOGLE_DATA_DIR || path.join(process.cwd(), 'data');
-fs.mkdirSync(GOOGLE_DATA_DIR, { recursive: true });
-const GOOGLE_TOKEN_PATH =
-  process.env.GOOGLE_TOKEN_PATH || path.join(GOOGLE_DATA_DIR, 'token.json');
+// ==== Token storage (ưu tiên ENV, fallback file). Không đụng tới DATA_DIR của catalogs ====
+// 1) Ưu tiên đọc từ biến môi trường GOOGLE_TOKEN_JSON (nội dung JSON của token)
+// 2) Nếu không có, dùng đường dẫn GOOGLE_TOKEN_PATH (mặc định: /tmp/token.json — an toàn cho Render)
+// 3) Khi nhận token mới, ghi lại file backup; log có mask để biết đã có refresh_token
 
-// Đọc/ghi token như cũ (giữ nguyên hai hàm, hoặc dùng bản có try/catch)
-const getTokens = () => {
+const TOKEN_DIR = process.env.TOKEN_DIR || '/tmp';
+try { fs.mkdirSync(TOKEN_DIR, { recursive: true }); } catch {}
+
+const GOOGLE_TOKEN_PATH = process.env.GOOGLE_TOKEN_PATH || path.join(TOKEN_DIR, 'token.json');
+
+function getTokens() {
+  // Ưu tiên ENV
+  const envJson = process.env.GOOGLE_TOKEN_JSON;
+  if (envJson && String(envJson).trim()) {
+    try { return JSON.parse(envJson); } catch (_) {}
+  }
+  // Đọc từ file (fallback)
   try {
     if (fs.existsSync(GOOGLE_TOKEN_PATH)) {
       return JSON.parse(fs.readFileSync(GOOGLE_TOKEN_PATH, 'utf8') || '{}');
     }
   } catch (e) {
-    console.warn('Cannot read token:', e.message);
+    console.warn('[oauth] Cannot read token file:', e.message);
   }
   return null;
-};
+}
 
-const saveTokens = (t) => {
+function saveTokens(t) {
+  const data = JSON.stringify(t, null, 2);
+  // Ghi file backup (ephemeral vẫn giữ trong vòng đời container)
   try {
-    fs.writeFileSync(GOOGLE_TOKEN_PATH, JSON.stringify(t, null, 2), 'utf8');
+    fs.writeFileSync(GOOGLE_TOKEN_PATH, data, 'utf8');
   } catch (e) {
-    console.error('Cannot write token:', e.message);
+    console.error('[oauth] Cannot write token file:', e.message);
   }
-};
+  // Gợi ý: cập nhật GOOGLE_TOKEN_JSON trên dashboard để bền vững giữa các deploy
+  try {
+    const hasRT = !!t.refresh_token;
+    console.log(`[oauth] Saved tokens. refresh_token=${hasRT ? '***present***' : 'missing'}`);
+  } catch {}
+}
 
 
 async function authAsCentral() {
@@ -2132,6 +2149,7 @@ app.listen(PORT, HOST, () => {
   const printableHost = (HOST === '0.0.0.0' || HOST === '::') ? 'localhost' : HOST;
   console.log(`Server listening at http://${printableHost}:${PORT}`);
 });
+
 
 
 

@@ -298,6 +298,8 @@ async function authAsCentral() {
   });
   return oauth2;
 }
+
+function esc(s){ return String(s||'').replace(/'/g,"\\'"); }
 async function ensureRootFolder(drive, name) {
   const q = `name='${name}' and mimeType='application/vnd.google-apps.folder' and 'root' in parents and trashed=false`;
   const list = await drive.files.list({ q, fields: "files(id,name)" });
@@ -350,19 +352,17 @@ async function handleOAuthCallback(req, res) {
   try {
     const oauth2 = buildOAuth();
     const { tokens } = await oauth2.getToken(req.query.code);
-    if (tokens.refresh_token) saveTokens({ ...getTokens(), ...tokens });
+    const prev = getTokens() || {};
+    if (tokens.refresh_token) saveTokens({ ...prev, ...tokens });
     oauth2.setCredentials(tokens);
-
-    // Khởi tạo thư mục gốc nếu chưa có
     const drive = google.drive({ version: "v3", auth: oauth2 });
     await ensureRootFolder(drive, process.env.DRIVE_ROOT_FOLDER_NAME || "PartyDocsRoot");
-
-    // về trang chủ hoặc trang quản trị
     res.redirect("/?authok=1");
   } catch (e) {
     res.status(500).send("Lỗi callback OAuth: " + e.message);
   }
 }
+
 
 // Chấp nhận nhiều alias để tránh 404 khi sai đường dẫn
 app.get("/oauth2/callback", handleOAuthCallback);
@@ -976,7 +976,7 @@ app.get("/documents/search", async (req, res) => {
     if (mucDo){ wh.push("mucDo=?"); args.push(mucDo); }
     if (donVi){ wh.push("donVi=?"); args.push(donVi); }
     if (sender){   wh.push("nguoiGui ILIKE ?"); args.push(`%${sender}%`); }
-    if (receiver){ wh.push("nguoiGui ILIKE ?"); args.push(`%${receiver}%`); }
+   if (receiver){ wh.push("nguoiPhuTrach ILIKE ?");  args.push(`%${receiver}%`); }
     if (dueFrom){ wh.push("hanXuLy>=?"); args.push(dueFrom); }
     if (dueTo){   wh.push("hanXuLy<=?"); args.push(dueTo); }
     if (text && text.trim()){
@@ -2124,4 +2124,5 @@ app.listen(PORT, HOST, () => {
   const printableHost = (HOST === '0.0.0.0' || HOST === '::') ? 'localhost' : HOST;
   console.log(`Server listening at http://${printableHost}:${PORT}`);
 });
+
 

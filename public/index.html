@@ -95,6 +95,15 @@
   .form-row .field span{display:block;margin:0 0 4px}
   .form-row .remember{display:flex;align-items:center;gap:6px;white-space:nowrap;padding-bottom:4px}
   #lgBtn{min-width:120px}
+
+  /* Nút cài PWA nổi */
+#installBtn{
+  display:none; position:fixed; right:16px; bottom:16px; z-index:99999;
+  padding:10px 14px; border-radius:12px; border:0; background:#111; color:#fff;
+  box-shadow:0 6px 20px rgba(0,0,0,.2); cursor:pointer; font-weight:600;
+}
+#installBtn:disabled{ opacity:.6; cursor:default }
+
 </style>
 <!-- PWA manifest + icons -->
 <link rel="manifest" href="/manifest.webmanifest">
@@ -119,6 +128,9 @@
     <a id="btnAuth" class="btn" href="/auth/admin/drive">Cấp quyền Drive</a>
   </div>
 </header>
+  <!-- Nút cài ứng dụng (PWA) -->
+<button id="installBtn" aria-label="Cài đặt ứng dụng">Cài đặt ứng dụng</button>
+
 
 <div class="wrap">
   <!-- =========================
@@ -2414,10 +2426,49 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 <!-- /[PATCH-UI-ONE-TIME-MEMBER] --> <!-- (giữ nguyên vì đây KHÔNG nằm trong <script>) -->
+<script>
+  
+// PWA install button logic
+(function(){
+  let deferredPrompt = null;
+  const btn = document.getElementById('installBtn');
 
+  // Trình duyệt đủ điều kiện sẽ bắn sự kiện này
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();            // chặn prompt tự bật
+    deferredPrompt = e;            // giữ lại để gọi thủ công
+    if (btn) btn.style.display = 'inline-block';
+  });
+
+  // Người dùng bấm nút → mở prompt cài đặt
+  btn?.addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+    btn.disabled = true;
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice; // { outcome: 'accepted' | 'dismissed' }
+    deferredPrompt = null;
+    btn.style.display = 'none';
+    btn.disabled = false;
+  });
+
+  // Đã cài đặt xong → ẩn nút
+  window.addEventListener('appinstalled', () => {
+    deferredPrompt = null;
+    if (btn) btn.style.display = 'none';
+  });
+
+  // iOS (Safari) không có beforeinstallprompt → ẩn nút
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  if (isIOS && isSafari && btn){
+    btn.style.display = 'none';
+  }
+})();
+</script>
  
 </body>
 </html>
+
 
 
 

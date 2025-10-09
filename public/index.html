@@ -651,9 +651,18 @@
           <label>Mức độ (id | label)
             <textarea id="catMucDo" placeholder="thuong | Thường&#10;khan | Khẩn&#10;mat | Mật"></textarea>
           </label>
-          <label>Đơn vị/Bộ phận (id | label)
-            <textarea id="catDonVi" placeholder="danguy | Đảng ủy&#10;chibo | Chi bộ&#10;chung | Chung"></textarea>
-          </label>
+          <label style="grid-column:1/-1">
+  Đơn vị/Bộ phận (dán bảng: <b>Nhóm</b> | <b>Chi bộ</b> | <b>Đơn vị/Bộ phận</b>)
+  <textarea id="catDonViGrid" placeholder="Ví dụ (có thể dán trực tiếp từ Excel bằng phím Ctrl+V):
+Vanphong_GL | Tổ chức - Hành chính | Tổ chức - Hành chính
+Vanphong_GL | Kế toán - Tài chính     | Kế toán - Tài chính
+CHXD_GL     | Petrolimex 01           | Petrolimex CH 01
+CHXD_GL     | Petrolimex 01           | Petrolimex CH 02"></textarea>
+</label>
+
+<!-- Xem nhanh dạng bảng sau khi dán -->
+<div id="catDonViPreview" class="result" style="grid-column:1/-1">Chưa có dữ liệu.</div>
+
           <label style="grid-column:1/-1">Nhãn (mỗi dòng một nhãn)
             <textarea id="catNhan" placeholder="Đảng vụ&#10;Khẩn&#10;Nội bộ"></textarea>
           </label>
@@ -2468,6 +2477,7 @@ if ('serviceWorker' in navigator) {
  
 </body>
 </html>
+
 
 
 

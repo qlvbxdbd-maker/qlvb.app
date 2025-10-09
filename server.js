@@ -669,6 +669,9 @@ app.post("/documents/upload", upload.single("file"), checkUploadRules, async (re
     if (!currentUser(req)) return res.status(401).json({ ok:false, error:"Cần đăng nhập" });
 
     const auth = await authAsCentral();
+    const me = currentUser(req);
+const ownerEmail = me?.email || "";
+
     const drive = google.drive({ version: "v3", auth });
     const rootId = await ensureRootFolder(drive, process.env.DRIVE_ROOT_FOLDER_NAME || "PartyDocsRoot");
 
@@ -682,16 +685,19 @@ app.post("/documents/upload", upload.single("file"), checkUploadRules, async (re
       hanXuLy="", nguoiGui="", nguoiPhuTrach="", nhan="", trichYeu="", flow=""
     } = req.body || {};
 
-    const flowFixed = flow ? String(flow) : "den";
+    const flowFixed = flow ? String(flow) : "di";
 
     const meta = {
       name: originalName,
       parents: [folderId],
       description: trichYeu || undefined,
-      appProperties: {
-        soHieu, loai, mucDo, donVi, hanXuLy, nguoiGui, nguoiPhuTrach, nhan,
-        tenTepHienThi: tenTep || "", uploadedDate: (req.query.date || "").toString(), flow: flowFixed
-      }
+     appProperties: {
+  soHieu, loai, mucDo, donVi, hanXuLy, nguoiGui, nguoiPhuTrach, nhan,
+  tenTepHienThi: tenTep || "",
+  uploadedDate: (req.query.date || "").toString(),
+  flow: flowFixed,
+  ownerEmail
+}
     };
     const media = { mimeType: req.file.mimetype, body: fs.createReadStream(req.file.path) };
     const r = await google.drive({ version: "v3", auth }).files.create({
@@ -700,16 +706,16 @@ app.post("/documents/upload", upload.single("file"), checkUploadRules, async (re
     fs.unlink(req.file.path, ()=>{});
 
     await db.run(`
-      INSERT INTO docs (id,name,soHieu,loai,mucDo,donVi,hanXuLy,nguoiGui,nguoiPhuTrach,nhan,trichYeu,uploadedDate,webViewLink,flow,createdAt)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+      INSERT INTO docs (id,name,soHieu,loai,mucDo,donVi,hanXuLy,nguoiGui,nguoiPhuTrach,nhan,trichYeu,uploadedDate,webViewLink,flow,ownerEmail,createdAt)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
       ON CONFLICT (id) DO UPDATE SET
         name=EXCLUDED.name,soHieu=EXCLUDED.soHieu,loai=EXCLUDED.loai,mucDo=EXCLUDED.mucDo,donVi=EXCLUDED.donVi,
         hanXuLy=EXCLUDED.hanXuLy,nguoiGui=EXCLUDED.nguoiGui,nguoiPhuTrach=EXCLUDED.nguoiPhuTrach,nhan=EXCLUDED.nhan,
-        trichYeu=EXCLUDED.trichYeu,uploadedDate=EXCLUDED.uploadedDate,webViewLink=EXCLUDED.webViewLink,flow=EXCLUDED.flow,createdAt=EXCLUDED.createdAt
+        trichYeu=EXCLUDED.trichYeu,uploadedDate=EXCLUDED.uploadedDate,webViewLink=EXCLUDED.webViewLink,flow=EXCLUDED.flow,ownerEmail=EXCLUDED.ownerEmail,createdAt=EXCLUDED.createdAt
     `,
-      r.data.id, r.data.name, soHieu, loai, mucDo, donVi, hanXuLy, nguoiGui, nguoiPhuTrach,
-      nhan, trichYeu, (req.query.date || "").toString(), r.data.webViewLink || null, flowFixed,
-      (r.data.createdTime || new Date().toISOString()).replace("T"," ").replace("Z","")
+    r.data.id, r.data.name, soHieu, loai, mucDo, donVi, hanXuLy, nguoiGui, nguoiPhuTrach,
+nhan, trichYeu, (req.query.date || "").toString(), r.data.webViewLink || null, flowFixed, ownerEmail,
+(r.data.createdTime || new Date().toISOString()).replace("T"," ").replace("Z","")
     );
 
     res.json({ ok:true, message:"Tải lên thành công.", fileId:r.data.id, name:r.data.name, webViewLink:r.data.webViewLink, webContentLink:r.data.webContentLink });
@@ -814,20 +820,21 @@ app.get("/personal/search", async (req, res) => {
     }
 
     const rows = await db.all(`
-      SELECT id, name, createdAt
+      SELECT id, name, trichYeu, createdAt
       FROM docs
       WHERE ${wh.join(" AND ")}
       ORDER BY createdAt DESC
       LIMIT 300
     `, ...params);
 
-    const items = rows.map(r => ({
-      id: r.id,
-      name: r.name,
-      createdAt: r.createdAt,
-      webViewLink: `/documents/${encodeURIComponent(r.id)}/open?proxy=1`,
-      openUrl: `/documents/${encodeURIComponent(r.id)}/open?proxy=1`
-    }));
+   const items = rows.map(r => ({
+  id: r.id,
+   name: r.name,
+   trichYeu: r.trichYeu || "",
+   createdAt: r.createdAt,
+   webViewLink: `/documents/${encodeURIComponent(r.id)}/open?proxy=1`,
+   openUrl: `/documents/${encodeURIComponent(r.id)}/open?proxy=1`
+ }));
 
     return res.json({ ok: true, items });
   } catch (e) {
@@ -990,7 +997,7 @@ app.get("/documents/search", async (req, res) => {
     const whereSql = whereParts.length ? ('WHERE ' + whereParts.join(' AND ')) : '';
 
     const rows = await db.all(`
-      SELECT id,name,soHieu,loai,mucDo,donVi,nguoiGui,hanXuLy,trichYeu,webViewLink,createdAt
+      SELECT id,name,soHieu,loai,mucDo,donVi,nguoiGui,hanXuLy,trichYeu,ownerEmail,webViewLink,createdAt
       FROM docs
       ${whereSql}
       ORDER BY createdAt DESC LIMIT 300
@@ -1004,10 +1011,11 @@ app.get("/documents/search", async (req, res) => {
       openUrl: `/documents/${encodeURIComponent(r.id)}/open`,
       createdAt:r.createdAt,
       modifiedTime:r.createdAt,
-      appProperties:{
-        soHieu:r.soHieu, loai:r.loai, mucDo:r.mucDo, donVi:r.donVi,
-        nguoiGui:r.nguoiGui, hanXuLy:r.hanXuLy, trichYeu:r.trichYeu
-      }
+     appProperties:{
+  soHieu:r.soHieu, loai:r.loai, mucDo:r.mucDo, donVi:r.donVi,
+  nguoiGui:r.nguoiGui, hanXuLy:r.hanXuLy, trichYeu:r.trichYeu,
+  ownerEmail: r.ownerEmail || ""
+}
     }))});
   } catch (e) { res.status(500).json({ ok:false, error:e.message }); }
 });
@@ -1023,7 +1031,7 @@ app.get("/documents/latest", async (req, res) => {
     const whereSql = `WHERE ${wh.join(" AND ")}`;
 
     const rows = await db.all(`
-      SELECT id, name, soHieu, loai, mucDo, donVi, nguoiGui, hanXuLy, trichYeu, webViewLink, createdAt
+      SELECT id, name, soHieu, loai, mucDo, donVi, nguoiGui, hanXuLy, trichYeu, ownerEmail, webViewLink, createdAt
       FROM docs
       ${whereSql}
       ORDER BY createdAt DESC
@@ -1031,26 +1039,28 @@ app.get("/documents/latest", async (req, res) => {
     `, ...acl.params, limit);
 
     const items = rows.map(r => ({
-      id: r.id,
-      name: r.name,
-      soHieu: r.soHieu || "",
-      loai: r.loai || "",
-      mucDo: r.mucDo || "",
-      donVi: r.donVi || "",
-      nguoiGui: r.nguoiGui || "",
-      hanXuLy: r.hanXuLy || "",
-      trichYeu: r.trichYeu || "",
-      createdAt: r.createdAt,
-      modifiedTime: r.createdAt,
-      webViewLink: `/documents/${encodeURIComponent(r.id)}/open`,
-      openUrl:     `/documents/${encodeURIComponent(r.id)}/open`,
-      gdocLink:    r.webViewLink,
-      appProperties: {
-        soHieu: r.soHieu, loai: r.loai, mucDo: r.mucDo,
-        donVi: r.donVi, nguoiGui: r.nguoiGui,
-        hanXuLy: r.hanXuLy, trichYeu: r.trichYeu
-      }
-    }));
+  id: r.id,
+  name: r.name,
+  soHieu: r.soHieu || "",
+  loai: r.loai || "",
+  mucDo: r.mucDo || "",
+  donVi: r.donVi || "",
+  nguoiGui: r.nguoiGui || "",
+  hanXuLy: r.hanXuLy || "",
+  trichYeu: r.trichYeu || "",
+  ownerEmail: r.ownerEmail || "",            // <— THÊM DÒNG NÀY (top-level)
+  createdAt: r.createdAt,
+  modifiedTime: r.createdAt,
+  webViewLink: `/documents/${encodeURIComponent(r.id)}/open`,
+  openUrl:     `/documents/${encodeURIComponent(r.id)}/open`,
+  gdocLink:    r.webViewLink,
+  appProperties: {
+    soHieu: r.soHieu, loai: r.loai, mucDo: r.mucDo,
+    donVi: r.donVi, nguoiGui: r.nguoiGui,
+    hanXuLy: r.hanXuLy, trichYeu: r.trichYeu,
+    ownerEmail: r.ownerEmail || ""           // <— (tuỳ UI) thêm ở đây nếu front đọc từ appProperties
+  }
+}));
 
     res.json({ ok: true, items });
   } catch (e) {
@@ -1711,7 +1721,7 @@ app.get("/reports/docs/deployed", async (req,res)=>{
   const whereSql = 'WHERE ' + whereParts.join(' AND ');
 
   const rows = await db.all(`
-    SELECT id,name,soHieu,donVi,mucDo,nguoiGui,trichYeu,webViewLink,createdAt
+    SELECT id,name,soHieu,donVi,mucDo,nguoiGui,trichYeu,hanXuLy,webViewLink,createdAt
     FROM docs ${whereSql} ORDER BY createdAt DESC LIMIT 500
   `, ...args, ...acl.params);
   res.json({ ok:true, items: rows.map(r => ({ ...r, openUrl: `/documents/${encodeURIComponent(r.id)}/open` })) });
@@ -1732,13 +1742,12 @@ app.get("/reports/docs/deployed.xlsx", async (req,res)=>{
     const whereSql = 'WHERE ' + whereParts.join(' AND ');
 
     const rows = await db.all(`
-      SELECT id,name,soHieu,donVi,mucDo,nguoiGui,trichYeu,createdAt
+      SELECT id,name,soHieu,donVi,mucDo,nguoiGui,trichYeu,hanXuLy,webViewLink,createdAt
       FROM docs ${whereSql} ORDER BY createdAt DESC LIMIT 2000
     `, ...args, ...acl.params);
 
-    const HEAD = ["Tên","Trích yếu","Số hiệu","Cấp","Mức độ","Người gửi","Ngày","ID"];
-    const AOA  = [HEAD].concat(rows.map(r=>[
-      r.name||"", r.trichYeu||"", r.soHieu||"", r.donVi||"", r.mucDo||"", r.nguoiGui||"", r.createdAt||"", r.id||""
+    const HEAD = ["Tên","Trích yếu","Số hiệu","Cấp","Mức độ","Người gửi","Hạn xử lý","Ngày","ID"];
+    const AOA  = [HEAD].concat(rows.map(r=>[r.name||"", r.trichYeu||"", r.soHieu||"", r.donVi||"", r.mucDo||"", r.nguoiGui||"", r.hanXuLy||"", r.createdAt||"", r.id||""]
     ]));
 
     const ws = XLSX.utils.aoa_to_sheet(AOA);
@@ -2124,5 +2133,6 @@ app.listen(PORT, HOST, () => {
   const printableHost = (HOST === '0.0.0.0' || HOST === '::') ? 'localhost' : HOST;
   console.log(`Server listening at http://${printableHost}:${PORT}`);
 });
+
 
 

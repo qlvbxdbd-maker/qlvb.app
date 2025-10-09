@@ -1004,19 +1004,21 @@ app.get("/documents/search", async (req, res) => {
     `, ...args, ...acl.params);
 
     res.json({ ok:true, count:rows.length, files: rows.map(r=>({
-      id:r.id,
-      name:r.name,
-      webViewLink: `/documents/${encodeURIComponent(r.id)}/open`,
-      gdocLink: r.webViewLink,
-      openUrl: `/documents/${encodeURIComponent(r.id)}/open`,
-      createdAt:r.createdAt,
-      modifiedTime:r.createdAt,
-     appProperties:{
-  soHieu:r.soHieu, loai:r.loai, mucDo:r.mucDo, donVi:r.donVi,
-  nguoiGui:r.nguoiGui, hanXuLy:r.hanXuLy, trichYeu:r.trichYeu,
-  ownerEmail: r.ownerEmail || ""
-}
-    }))});
+  id: r.id,
+  name: r.name,
+  ownerEmail: r.ownerEmail || "",   // <— THÊM top-level
+  webViewLink: `/documents/${encodeURIComponent(r.id)}/open`,
+  gdocLink: r.webViewLink,
+  openUrl: `/documents/${encodeURIComponent(r.id)}/open`,
+  createdAt: r.createdAt,
+  modifiedTime: r.createdAt,
+  appProperties:{
+    soHieu:r.soHieu, loai:r.loai, mucDo:r.mucDo, donVi:r.donVi,
+    nguoiGui:r.nguoiGui, hanXuLy:r.hanXuLy, trichYeu:r.trichYeu,
+    ownerEmail: r.ownerEmail || ""
+  }
+}))});
+
   } catch (e) { res.status(500).json({ ok:false, error:e.message }); }
 });
 
@@ -1747,8 +1749,20 @@ app.get("/reports/docs/deployed.xlsx", async (req,res)=>{
     `, ...args, ...acl.params);
 
     const HEAD = ["Tên","Trích yếu","Số hiệu","Cấp","Mức độ","Người gửi","Hạn xử lý","Ngày","ID"];
-    const AOA  = [HEAD].concat(rows.map(r=>[r.name||"", r.trichYeu||"", r.soHieu||"", r.donVi||"", r.mucDo||"", r.nguoiGui||"", r.hanXuLy||"", r.createdAt||"", r.id||""]
-    ]));
+const AOA  = [HEAD].concat(
+  rows.map(r => [
+    r.name || "",
+    r.trichYeu || "",
+    r.soHieu || "",
+    r.donVi || "",
+    r.mucDo || "",
+    r.nguoiGui || "",
+    r.hanXuLy || "",
+    r.createdAt || "",
+    r.id || ""
+  ])
+);
+
 
     const ws = XLSX.utils.aoa_to_sheet(AOA);
     ws['!cols'] = HEAD.map(()=>({wch:26}));
@@ -2133,6 +2147,7 @@ app.listen(PORT, HOST, () => {
   const printableHost = (HOST === '0.0.0.0' || HOST === '::') ? 'localhost' : HOST;
   console.log(`Server listening at http://${printableHost}:${PORT}`);
 });
+
 
 
 

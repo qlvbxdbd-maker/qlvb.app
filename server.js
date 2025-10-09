@@ -72,6 +72,8 @@ function readCatalogsSafe(){
 function writeCatalogsSafe(obj){
   fs.writeFileSync(CATALOGS_PATH, JSON.stringify(obj, null, 2), 'utf8');
 }
+// helper dùng ở dưới
+function loadCatalogsFromDisk(){ return readCatalogsSafe(); }
 
 /* ===================== HTTP & STATIC ===================== */
 const app = express();
@@ -164,6 +166,15 @@ app.use(session({
   }
 }));
 
+/* ===================== MIDDLEWARE QUYỀN CƠ BẢN ===================== */
+function ensureAdmin(req,res,next){
+  const u = req.session?.user;
+  if (!u || u.role !== 'admin') {
+    return res.status(401).json({ ok:false, error:'Unauthorized' });
+  }
+  next();
+}
+
 /* ===================== ROUTES: Catalogs ===================== */
 // Trả catalogs cho client (ai cũng gọi được)
 app.get('/catalogs', (req, res) => {
@@ -245,23 +256,19 @@ function buildOAuth() {
   );
 }
 
-// ==== Token storage (ưu tiên ENV, fallback file). Không đụng tới DATA_DIR của catalogs ====
-// 1) Ưu tiên đọc từ biến môi trường GOOGLE_TOKEN_JSON (nội dung JSON của token)
-// 2) Nếu không có, dùng đường dẫn GOOGLE_TOKEN_PATH (mặc định: /tmp/token.json — an toàn cho Render)
-// 3) Khi nhận token mới, ghi lại file backup; log có mask để biết đã có refresh_token
-
+// ==== Token storage (ưu tiên ENV, fallback file) ====
+// 1) ENV GOOGLE_TOKEN_JSON (JSON token)
+// 2) GOOGLE_TOKEN_PATH (mặc định: /tmp/token.json — phù hợp Render/ephemeral)
+// 3) Khi có token mới, ghi file backup; log mask refresh_token
 const TOKEN_DIR = process.env.TOKEN_DIR || '/tmp';
 try { fs.mkdirSync(TOKEN_DIR, { recursive: true }); } catch {}
-
 const GOOGLE_TOKEN_PATH = process.env.GOOGLE_TOKEN_PATH || path.join(TOKEN_DIR, 'token.json');
 
 function getTokens() {
-  // Ưu tiên ENV
   const envJson = process.env.GOOGLE_TOKEN_JSON;
   if (envJson && String(envJson).trim()) {
     try { return JSON.parse(envJson); } catch (_) {}
   }
-  // Đọc từ file (fallback)
   try {
     if (fs.existsSync(GOOGLE_TOKEN_PATH)) {
       return JSON.parse(fs.readFileSync(GOOGLE_TOKEN_PATH, 'utf8') || '{}');
@@ -271,22 +278,12 @@ function getTokens() {
   }
   return null;
 }
-
 function saveTokens(t) {
   const data = JSON.stringify(t, null, 2);
-  // Ghi file backup (ephemeral vẫn giữ trong vòng đời container)
-  try {
-    fs.writeFileSync(GOOGLE_TOKEN_PATH, data, 'utf8');
-  } catch (e) {
-    console.error('[oauth] Cannot write token file:', e.message);
-  }
-  // Gợi ý: cập nhật GOOGLE_TOKEN_JSON trên dashboard để bền vững giữa các deploy
-  try {
-    const hasRT = !!t.refresh_token;
-    console.log(`[oauth] Saved tokens. refresh_token=${hasRT ? '***present***' : 'missing'}`);
-  } catch {}
+  try { fs.writeFileSync(GOOGLE_TOKEN_PATH, data, 'utf8'); }
+  catch (e) { console.error('[oauth] Cannot write token file:', e.message); }
+  try { console.log(`[oauth] Saved tokens. refresh_token=${t?.refresh_token ? '***present***' : 'missing'}`); } catch {}
 }
-
 
 async function authAsCentral() {
   const oauth2 = buildOAuth();
@@ -664,7 +661,6 @@ async function canEditMember(req, row){
   if (inUnit || inChi) return { ok:true };
   return { ok:false, code:403, error:'Hồ sơ nằm ngoài phạm vi quản lý' };
 }
-
 /* ===================== VĂN BẢN – UPLOAD TỔ CHỨC ===================== */
 app.post("/documents/upload", upload.single("file"), checkUploadRules, async (req, res) => {
   await db.ready;
@@ -686,7 +682,7 @@ app.post("/documents/upload", upload.single("file"), checkUploadRules, async (re
       hanXuLy="", nguoiGui="", nguoiPhuTrach="", nhan="", trichYeu="", flow=""
     } = req.body || {};
 
-    const flowFixed = flow ? String(flow) : "den"; // mặc định 'den'
+    const flowFixed = flow ? String(flow) : "den";
 
     const meta = {
       name: originalName,
@@ -698,7 +694,9 @@ app.post("/documents/upload", upload.single("file"), checkUploadRules, async (re
       }
     };
     const media = { mimeType: req.file.mimetype, body: fs.createReadStream(req.file.path) };
-    const r = await drive.files.create({ requestBody: meta, media, fields: "id,name,webViewLink,webContentLink,createdTime" });
+    const r = await google.drive({ version: "v3", auth }).files.create({
+      requestBody: meta, media, fields: "id,name,webViewLink,webContentLink,createdTime"
+    });
     fs.unlink(req.file.path, ()=>{});
 
     await db.run(`
@@ -751,7 +749,7 @@ app.post("/personal/upload", upload.single("file"), checkUploadRules, async (req
     const r = await drive.files.create({ requestBody: meta, media, fields:"id,name,webViewLink,createdTime" });
     fs.unlink(req.file.path, ()=>{});
 
-    // cấp quyền reader cho email Google của user
+    // cấp quyền reader cho email của user (gmail nếu có)
     try {
       const emails = await resolveViewEmailsForUser(me.id, ownerEmail);
       for (const em of emails) {
@@ -885,7 +883,7 @@ app.post("/documents/share", async (req, res) => {
     if (!mode || mode === 'user') {
       if (!email) return res.status(400).json({ ok:false, error:"Thiếu email người nhận" });
       if (!canShare(me,'user')) return res.status(403).json({ ok:false, error:"Không đủ quyền chia sẻ cá nhân" });
-      recipients = [email.trim().toLowerCase()];
+      recipients = [String(email).trim().toLowerCase()];
     } else if (mode === 'all') {
       if (!canShare(me,'all')) return res.status(403).json({ ok:false, error:"Không đủ quyền chia sẻ toàn bộ" });
       const rows = await db.all("SELECT email FROM users WHERE active=1");
@@ -978,7 +976,7 @@ app.get("/documents/search", async (req, res) => {
     if (mucDo){ wh.push("mucDo=?"); args.push(mucDo); }
     if (donVi){ wh.push("donVi=?"); args.push(donVi); }
     if (sender){   wh.push("nguoiGui ILIKE ?"); args.push(`%${sender}%`); }
-    if (receiver){ wh.push("nguoiGui ILIKE ?"); args.push(`%${receiver}%`); } // giữ tương thích
+    if (receiver){ wh.push("nguoiGui ILIKE ?"); args.push(`%${receiver}%`); }
     if (dueFrom){ wh.push("hanXuLy>=?"); args.push(dueFrom); }
     if (dueTo){   wh.push("hanXuLy<=?"); args.push(dueTo); }
     if (text && text.trim()){
@@ -1019,8 +1017,6 @@ app.get("/documents/latest", async (req, res) => {
   await db.ready;
   try {
     const limit = Math.min(Number(req.query.limit || 8), 50);
-
-    // ACL: chỉ tài liệu trong 2 luồng, cộng điều kiện theo người dùng
     const acl = await docACL(req);
     const wh = ["flow IN ('den','di')"];
     if (acl.clause) wh.push(`(${acl.clause})`);
@@ -1035,7 +1031,6 @@ app.get("/documents/latest", async (req, res) => {
     `, ...acl.params, limit);
 
     const items = rows.map(r => ({
-      // các field top-level mà index.html đang dùng
       id: r.id,
       name: r.name,
       soHieu: r.soHieu || "",
@@ -1046,14 +1041,10 @@ app.get("/documents/latest", async (req, res) => {
       hanXuLy: r.hanXuLy || "",
       trichYeu: r.trichYeu || "",
       createdAt: r.createdAt,
-      modifiedTime: r.createdAt,       // để nơi nào dùng modifiedTime vẫn có dữ liệu
-
-      // link mở luôn qua proxy để không gặp màn hình xin quyền
+      modifiedTime: r.createdAt,
       webViewLink: `/documents/${encodeURIComponent(r.id)}/open`,
       openUrl:     `/documents/${encodeURIComponent(r.id)}/open`,
-      gdocLink:    r.webViewLink,      // giữ link gốc nếu cần
-
-      // vẫn trả kèm appProperties cho các view khác (tìm kiếm…)
+      gdocLink:    r.webViewLink,
       appProperties: {
         soHieu: r.soHieu, loai: r.loai, mucDo: r.mucDo,
         donVi: r.donVi, nguoiGui: r.nguoiGui,
@@ -1076,11 +1067,24 @@ app.get("/documents/:id/download", async (req, res) => {
     const auth = await authAsCentral();
     const drive = google.drive({ version: "v3", auth });
 
-    const meta = await drive.files.get({
-      fileId: req.params.id,
-      fields: "name, mimeType",
-      supportsAllDrives: true
-    });
+    let meta;
+    try {
+      meta = await drive.files.get({
+        fileId: req.params.id,
+        fields: "name, mimeType",
+        supportsAllDrives: true
+      });
+    } catch (e) {
+      const code = e?.response?.status || e?.code;
+      if (code === 404) {
+        try {
+          await db.run("DELETE FROM shares WHERE fileId=?", req.params.id);
+          await db.run("DELETE FROM docs WHERE id=?", req.params.id);
+        } catch {}
+        return res.status(404).send("Tệp đã bị xóa khỏi Google Drive (đã dọn khỏi chương trình).");
+      }
+      throw e;
+    }
 
     const filename = meta.data.name || "file";
     const mime = meta.data.mimeType || "application/octet-stream";
@@ -1129,22 +1133,13 @@ app.get("/documents/:id/download", async (req, res) => {
 // === OPEN: luôn proxy qua download inline, không dùng Google Viewer ===
 app.get("/documents/:id/open", async (req, res) => {
   try {
-    // Kiểm tra quyền truy cập theo DB (không liên quan quyền Drive)
     const chk = await canAccessDocById(req, req.params.id);
-    if (!chk.ok) {
-      return res.status(chk.code).send(chk.error || "Forbidden");
-    }
-
-    // Luôn mở qua proxy: stream file về (inline) => không bao giờ gặp màn hình "Bạn cần có quyền truy cập"
+    if (!chk.ok) return res.status(chk.code).send(chk.error || "Forbidden");
     return res.redirect(`/documents/${encodeURIComponent(req.params.id)}/download?inline=1`);
   } catch (e) {
     if (isInvalidGrant(e)) {
-      try {
-        if (fs.existsSync(GOOGLE_TOKEN_PATH)) fs.unlinkSync(GOOGLE_TOKEN_PATH);
-      } catch {}
-      return res
-        .status(401)
-        .send("Open lỗi: invalid_grant – Vào /auth/admin/drive để cấp quyền lại.");
+      try { if (fs.existsSync(GOOGLE_TOKEN_PATH)) fs.unlinkSync(GOOGLE_TOKEN_PATH); } catch {}
+      return res.status(401).send("Open lỗi: invalid_grant – Vào /auth/admin/drive để cấp quyền lại.");
     }
     return res.status(500).send("Open lỗi: " + e.message);
   }
@@ -1197,43 +1192,6 @@ app.get("/documents/:id/preview", async (req, res) => {
         .send(`${shellTop}<iframe src="${src}" style="width:100%;height:100%;border:0"></iframe>${shellBottom}`);
     }
 
-    let canDirect = false; // luôn dùng proxy/inline, không nhảy sang webViewLink
-    if (canDirect) {
-      let hadAnyGrant = false;
-      let grantDeniedAll = false;
-      try {
-        const me = currentUser(req);
-        if (me?.email && meta.data?.id) {
-          const auth2  = await authAsCentral();
-          const drive2 = google.drive({ version: "v3", auth: auth2 });
-          const emails = await resolveViewEmailsForUser(me.id || me.email, me.email);
-
-          for (const em of emails) {
-            const key = `${meta.data.id}:${em}:reader`;
-            if (!shouldGrantNow(key)) { hadAnyGrant = true; continue; }
-            try {
-              await withRetry(() => drive2.permissions.create({
-                fileId: meta.data.id,
-                requestBody: { type: "user", role: "reader", emailAddress: em },
-                sendNotificationEmail: false,
-                supportsAllDrives: true
-              }));
-              hadAnyGrant = true;
-              try {
-                await db.run("INSERT INTO shares(fileId,email,role,notified,message) VALUES (?,?,?,?,?)",
-                  meta.data.id, em, "reader", 0, null);
-              } catch {}
-            } catch (e) {
-              const msg = String(e?.message||"").toLowerCase();
-              if (msg.includes("not a valid google account")) grantDeniedAll = true;
-            }
-          }
-        }
-        if (grantDeniedAll) canDirect = false;
-        if (hadAnyGrant) { await sleep(300); }
-      } catch {}
-    }
-   
     return res
       .status(200)
       .type("text/html")
@@ -1427,6 +1385,27 @@ function parseVNDate(s){
 }
 function isCCCD12(x){ return !!String(x||"").trim().match(/^\d{12}$/); }
 
+// helper: format YYYY-MM-DD -> dd/mm/yyyy
+function fmtVNDate(s){
+  if (!s) return "";
+  try{
+    if (/^\d{4}-\d{2}-\d{2}$/.test(String(s))) {
+      const [y,m,d] = String(s).split("-");
+      return `${d}/${m}/${y}`;
+    }
+    const d = new Date(s);
+    if (!isNaN(d)) {
+      const dd = String(d.getDate()).padStart(2,'0');
+      const mm = String(d.getMonth()+1).padStart(2,'0');
+      const yy = String(d.getFullYear());
+      return `${dd}/${mm}/${yy}`;
+    }
+    return String(s);
+  }catch{
+    return String(s||"");
+  }
+}
+
 app.get("/members/template.xlsx", async (req,res)=>{
   await db.ready;
   try{
@@ -1609,27 +1588,6 @@ app.post("/members/import/confirm", async (req,res)=>{
     res.json({ ok:true, inserted, updated, total: valid.length });
   }catch(e){ res.status(500).json({ ok:false, error:e.message }); }
 });
-
-// --- helper: format YYYY-MM-DD -> dd/mm/yyyy
-function fmtVNDate(s){
-  if (!s) return "";
-  try{
-    if (/^\d{4}-\d{2}-\d{2}$/.test(String(s))) {
-      const [y,m,d] = String(s).split("-");
-      return `${d}/${m}/${y}`;
-    }
-    const d = new Date(s);
-    if (!isNaN(d)) {
-      const dd = String(d.getDate()).padStart(2,'0');
-      const mm = String(d.getMonth()+1).padStart(2,'0');
-      const yy = String(d.getFullYear());
-      return `${dd}/${mm}/${yy}`;
-    }
-    return String(s);
-  }catch{
-    return String(s||"");
-  }
-}
 
 /* ===================== BÁO CÁO ===================== */
 app.get("/reports/members/detail", async (req,res)=>{
@@ -2067,18 +2025,13 @@ app.post("/admin/users/sync-shares", ensureAdmin, async (req, res) => {
       email
     );
     if (!u) return res.status(404).json({ ok: false, error: "Không tìm thấy user" });
-
-    // Admin: bỏ qua (không cần sync share)
     if (u.role === "admin") return res.json({ ok: true, skipped: "admin" });
 
     const manageAll = !!u.manageAll || u.role === "manager_all";
     const units = parseArrayOrCSV(u.manageUnits);
     const chis  = parseArrayOrCSV(u.manageChiBo);
-
-    // Phạm vi cần đồng bộ (đơn vị + chi bộ)
     const scopes = Array.from(new Set([ ...(units || []), ...(chis || []) ]));
 
-    // manager_all: không cần share thêm (proxy đã đủ)
     if (manageAll) {
       return res.json({ ok: true, updated: 0, note: "manager_all không cần đồng bộ" });
     }
@@ -2101,7 +2054,6 @@ app.post("/admin/users/sync-shares", ensureAdmin, async (req, res) => {
 
     if (!docs.length) return res.json({ ok: true, updated: 0 });
 
-    // Cấp quyền reader trên Drive
     const auth  = await authAsCentral();
     const drive = google.drive({ version: "v3", auth });
 
@@ -2114,15 +2066,12 @@ app.post("/admin/users/sync-shares", ensureAdmin, async (req, res) => {
           sendNotificationEmail: false,
           supportsAllDrives: true
         });
-
-        // Lưu bảng shares (idempotent sơ bộ; nếu trùng cứ bỏ qua lỗi)
         try {
           await db.run(
             "INSERT INTO shares(fileId,email,role,notified,message) VALUES (?,?,?,?,?)",
             d.id, email, "reader", 0, null
           );
         } catch (_) {}
-
         ok++;
       } catch (_) {
         fail++;
@@ -2141,6 +2090,32 @@ app.post("/admin/users/sync-shares", ensureAdmin, async (req, res) => {
   }
 });
 
+/* ===================== PWA FALLBACK (manifest + service worker) ===================== */
+// Trường hợp bạn chưa có file tĩnh trong /public thì 2 route này phát sinh bản mặc định
+app.get('/manifest.webmanifest', (req, res) => {
+  const local = path.join(__dirname, 'public', 'manifest.webmanifest');
+  if (fs.existsSync(local)) return res.sendFile(local);
+  res.type('application/manifest+json').send({
+    name: "PartyDocs",
+    short_name: "PartyDocs",
+    start_url: "/",
+    display: "standalone",
+    background_color: "#111111",
+    theme_color: "#111111",
+    icons: [
+      { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+      { src: "/icons/maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" }
+    ]
+  });
+});
+
+app.get('/sw.js', (req, res) => {
+  const local = path.join(__dirname, 'public', 'sw.js');
+  if (fs.existsSync(local)) return res.sendFile(local);
+  res.type('application/javascript').send(`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>self.clients.claim());self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return; e.respondWith((async()=>{try{return await fetch(e.request)}catch{return new Response('Offline',{status:200,headers:{'Content-Type':'text/plain; charset=utf-8'}})} )())});`);
+});
+
 /* ===================== START ===================== */
 const PORT = Number(process.env.PORT || 4000);
 const HOST = process.env.HOST || '0.0.0.0';
@@ -2149,20 +2124,4 @@ app.listen(PORT, HOST, () => {
   const printableHost = (HOST === '0.0.0.0' || HOST === '::') ? 'localhost' : HOST;
   console.log(`Server listening at http://${printableHost}:${PORT}`);
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
